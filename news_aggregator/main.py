@@ -15,22 +15,25 @@ from config import api_id, api_hash, gazp_chat_id, bot_token
 # Можно добавить телеграм канал, rss ссылку или изменить фильтр новостей
 
 telegram_channels = {
-    1099860397: 'https://t.me/rbc_news',
-    1428717522: 'https://t.me/gazprom',
-    1101170442: 'https://t.me/rian_ru',
-    1133408457: 'https://t.me/prime1',
-    1149896996: 'https://t.me/interfaxonline',
-    1099350027: 'https://t.me/rusbrief',
-   # 1754252633: 'https://t.me/+oDf_lVJzbNQyYWFi'
-    1203560567: 'https://t.me/markettwits',  # Канал аггрегатор новостей
+   # 1099860397: 'https://t.me/rbc_news',
+    #1428717522: 'https://t.me/gazprom',
+    #1101170442: 'https://t.me/rian_ru',
+    #1133408457: 'https://t.me/prime1',
+    #1149896996: 'https://t.me/interfaxonline',
+    #1099350027: 'https://t.me/rusbrief',
+    #1203560567: 'https://t.me/markettwits',  # Канал аггрегатор новостей
+    1107107975: 'https://t.me/brechalov',
+    1696477325: 'https://t.me/yaroslav_semenov',
+    2032566955: 'https://t.me/kommersant18',
+    1038973822: 'https://t.me/susaninudm'
 }
 
 rss_channels = {
-    'www.rbc.ru': 'https://rssexport.rbc.ru/rbcnews/news/20/full.rss',
-    'www.ria.ru': 'https://ria.ru/export/rss2/archive/index.xml',
-    'www.1prime.ru': 'https://1prime.ru/export/rss2/index.xml',
-    'www.interfax.ru': 'https://www.interfax.ru/rss.asp',
-    'www.rsshub.app':'https://rsshub.app/telegram/channel/rusbrief'
+   # 'www.rbc.ru': 'https://rssexport.rbc.ru/rbcnews/news/20/full.rss',
+    #'www.ria.ru': 'https://ria.ru/export/rss2/archive/index.xml',
+    #'www.1prime.ru': 'https://1prime.ru/export/rss2/index.xml',
+    #'www.interfax.ru': 'https://www.interfax.ru/rss.asp',
+    #'www.rsshub.app':'https://rsshub.app/telegram/channel/rusbrief'
 }
 
 
@@ -39,24 +42,23 @@ def check_pattern_func(text):
     words = text.lower().split()
 
     key_words = [
-        'газп',     # газпром
-        'газо',     # газопровод, газофикация...
-        'поток',    # сервеный поток, северный поток 2, южный поток
-        'спг',      # спг - сжиженный природный газ
-        'gazp',
-        'а'
+        'экономик',   
+        'бизнес',    
+        'инвестиц',   
+        'инвестиции',    
+        'бюджет',
     ]
     
 
     for word in words:
-        if 'газ' in word and len(word) < 6:  # газ, газу, газом, газа
+        if 'газ' in word and len(word) < 6: 
             return True
 
         for key in key_words:
             if key in word:
                 return True
 
-    return True
+    return False
 
 
 ###########################
