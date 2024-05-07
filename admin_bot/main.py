@@ -12,9 +12,9 @@ dp = Dispatcher()
 async def send_welcome(message: types.Message):
     await message.answer("Привет, я бот для настройки бота-агрегатора новостей.", reply_markup= reply.main_menu_markup)
 
-@dp.message(F.text.lower() == "управление источниками",)
+@dp.message(or_f(Command("reply"), (F.text.lower() == "управление источниками")))
 async def source(message: types.Message):
-    await message.answer("", reply_markup= reply.manage_sources_markup)
+    await message.answer("sdfsdfsdf", reply_markup= reply.manage_sources_markup)
 
 
 async def main():

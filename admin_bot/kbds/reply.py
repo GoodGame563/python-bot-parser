@@ -22,6 +22,9 @@ manage_sources_markup = ReplyKeyboardMarkup(
             KeyboardButton(text = "Редактирование"),
             KeyboardButton(text ="Добавление"),
             KeyboardButton(text ="Удаление")
+        ],
+        [
+            KeyboardButton(text = "Haзад")
         ]
     ],
     resize_keyboard=True,
@@ -34,6 +37,9 @@ filter_posts_markup = ReplyKeyboardMarkup(
             KeyboardButton(text = "Добавление"),
             KeyboardButton(text = "Редактирование"),
             KeyboardButton(text = "Удаление")
+        ],
+        [
+            KeyboardButton(text = "Haзад")
         ]
     ],
     resize_keyboard=True,
@@ -45,8 +51,12 @@ schedule_menu_markup = ReplyKeyboardMarkup(
         [
             KeyboardButton(text = "Отключить режим"),
             KeyboardButton(text = "Выставить время работы")
+        ],
+        [
+            KeyboardButton(text = "Haзад")
         ]
     ],
     resize_keyboard=True,
     input_field_placeholder="Что вас интересует?"
 )
+
