@@ -56,14 +56,18 @@ def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
 if __name__ == "__main__":
 
     telegram_channels = {
-        1099350027: 'https://t.me/rusbrief',
-        1099860397: 'https://t.me/rbc_news',
-        1428717522: 'https://t.me/gazprom',
-        1101170442: 'https://t.me/rian_ru',
-        1133408457: 'https://t.me/prime1',
-        1149896996: 'https://t.me/interfaxonline',
-        1203560567: 'https://t.me/markettwits',
+        #1099350027: 'https://t.me/rusbrief',
+        #1099860397: 'https://t.me/rbc_news',
+        #1428717522: 'https://t.me/gazprom',
+        #1101170442: 'https://t.me/rian_ru',
+        #1133408457: 'https://t.me/prime1',
+        #1149896996: 'https://t.me/interfaxonline',
+        #1203560567: 'https://t.me/markettwits',
         #1754252633: 'https://t.me/+oDf_lVJzbNQyYWFi'
+        1107107975: 'https://t.me/brechalov',
+        1696477325: 'https://t.me/yaroslav_semenov',
+        2032566955: 'https://t.me/kommersant18',
+        1038973822: 'https://t.me/susaninudm'
 
     }
 
