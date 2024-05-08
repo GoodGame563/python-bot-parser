@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
 
     # Очередь из уже опубликованных постов, чтобы их не дублировать
-    posted_q = deque(maxlen=200)
+    posted_q = deque(maxlen=20)
 
     client = telegram_parser('gazp', api_id, api_hash, telegram_channels, posted_q)
 

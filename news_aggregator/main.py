@@ -71,7 +71,7 @@ def check_pattern_func(text):
 n_test_chars = 50
 
 # Количество уже опубликованных постов, чтобы их не повторять
-amount_messages = 250
+amount_messages = 25
 
 # Очередь уже опубликованных постов
 posted_q = deque(maxlen=amount_messages)
