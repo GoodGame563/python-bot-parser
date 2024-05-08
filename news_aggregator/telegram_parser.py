@@ -3,6 +3,7 @@ from telethon import TelegramClient, events
 
 from config import api_id, api_hash
 
+from db_worker import return_channels
 
 def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
                     n_test_chars=50, check_pattern_func=None,
@@ -22,7 +23,7 @@ def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
         '''Забирает посты из телеграмм каналов и посылает их в наш канал'''
         if event.raw_text == '':
             return
-
+        header = event.raw_text.split('/n'[0])
         news_text = ' '.join(event.raw_text.split('\n')[:2])
         print(news_text)
 
@@ -34,6 +35,8 @@ def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
 
         if head in posted_q:
             return
+        
+
 
         source = telegram_channels[event.message.peer_id.channel_id]
 
@@ -41,7 +44,7 @@ def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
 
         channel = '@' + source.split('/')[-1]
 
-        post = f'<b>{channel}</b>\n{link}\n{news_text}'
+        post = f'<b>{header}</b><b>{channel}</b>\n{link}\n{news_text}'
 
         if send_message_func is None:
             print(post, '\n')
@@ -55,7 +58,7 @@ def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
 
 if __name__ == "__main__":
 
-    telegram_channels = {
+    telegram_channels = return_channels()
         #1099350027: 'https://t.me/rusbrief',
         #1099860397: 'https://t.me/rbc_news',
         #1428717522: 'https://t.me/gazprom',
@@ -64,12 +67,11 @@ if __name__ == "__main__":
         #1149896996: 'https://t.me/interfaxonline',
         #1203560567: 'https://t.me/markettwits',
         #1754252633: 'https://t.me/+oDf_lVJzbNQyYWFi'
-        1107107975: 'https://t.me/brechalov',
-        1696477325: 'https://t.me/yaroslav_semenov',
-        2032566955: 'https://t.me/kommersant18',
-        1038973822: 'https://t.me/susaninudm'
+        #1107107975: 'https://t.me/brechalov',
+        #1696477325: 'https://t.me/yaroslav_semenov',
+        #2032566955: 'https://t.me/kommersant18',
+        #1038973822: 'https://t.me/susaninudm'
 
-    }
 
     # Очередь из уже опубликованных постов, чтобы их не дублировать
     posted_q = deque(maxlen=200)

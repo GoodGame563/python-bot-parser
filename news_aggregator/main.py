@@ -11,10 +11,12 @@ from utils import create_logger, get_history, send_error_message
 from config import api_id, api_hash, gazp_chat_id, bot_token
 
 
+from db_worker import return_channels
+
 ###########################
 # Можно добавить телеграм канал, rss ссылку или изменить фильтр новостей
 
-telegram_channels = {
+telegram_channels = return_channels()
    # 1099860397: 'https://t.me/rbc_news',
     #1428717522: 'https://t.me/gazprom',
     #1101170442: 'https://t.me/rian_ru',
@@ -22,11 +24,11 @@ telegram_channels = {
     #1149896996: 'https://t.me/interfaxonline',
     #1099350027: 'https://t.me/rusbrief',
     #1203560567: 'https://t.me/markettwits',  # Канал аггрегатор новостей
-    1107107975: 'https://t.me/brechalov',
-    1696477325: 'https://t.me/yaroslav_semenov',
-    2032566955: 'https://t.me/kommersant18',
-    1038973822: 'https://t.me/susaninudm'
-}
+   # 1107107975: 'https://t.me/brechalov',
+    #1696477325: 'https://t.me/yaroslav_semenov',
+    #2032566955: 'https://t.me/kommersant18',
+    #1038973822: 'https://t.me/susaninudm'
+
 
 rss_channels = {
    # 'www.rbc.ru': 'https://rssexport.rbc.ru/rbcnews/news/20/full.rss',
@@ -47,6 +49,7 @@ def check_pattern_func(text):
         'инвестиц',   
         'инвестиции',    
         'бюджет',
+        'a'
     ]
     
 
@@ -74,7 +77,7 @@ amount_messages = 250
 posted_q = deque(maxlen=amount_messages)
 
 # +/- интервал между запросами у rss и кастомного парсеров в секундах
-timeout = 2
+timeout = 600
 
 ###########################
 

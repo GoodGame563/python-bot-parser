@@ -59,7 +59,7 @@ async def rss_parser(httpx_client, source, rss_link, posted_q, n_test_chars=50,
 
 if __name__ == "__main__":
 
-    source = 'www.rbc.ru'
+   # source = 'www.rbc.ru'
     
     rss_link = 'https://rssexport.rbc.ru/rbcnews/news/20/full.rss',
 
@@ -68,4 +68,4 @@ if __name__ == "__main__":
 
     httpx_client = httpx.AsyncClient()
 
-    asyncio.run(rss_parser(httpx_client, source, rss_link, posted_q))
+   # asyncio.run(rss_parser(httpx_client, source, rss_link, posted_q))
