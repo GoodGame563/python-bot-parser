@@ -1,0 +1,12 @@
+2024-05-10 16:10:28,741 INFO script started
+2024-05-10 16:10:45,511 INFO parsing channel https://t.me/rusbrief
+2024-05-10 16:10:46,196 INFO Connecting to 149.154.167.51:443/TcpFull...
+2024-05-10 16:10:47,841 INFO Connection to 149.154.167.51:443/TcpFull complete!
+2024-05-10 16:11:16,854 INFO Starting direct file download in chunks of 131072 at 0, stride 131072
+2024-05-10 16:11:24,062 INFO Starting direct file download in chunks of 131072 at 0, stride 131072
+2024-05-10 16:12:12,569 INFO Starting direct file download in chunks of 131072 at 0, stride 131072
+2024-05-10 16:13:00,171 INFO Starting direct file download in chunks of 131072 at 0, stride 131072
+2024-05-10 16:13:05,008 INFO Starting direct file download in chunks of 131072 at 0, stride 131072
+2024-05-10 16:13:16,890 INFO Starting direct file download in chunks of 131072 at 0, stride 131072
+2024-05-10 16:13:33,416 INFO Disconnecting from 149.154.167.51:443/TcpFull...
+2024-05-10 16:13:33,417 INFO Disconnection from 149.154.167.51:443/TcpFull complete!
