@@ -3,7 +3,7 @@ from telethon import TelegramClient, events
 
 from config import api_id, api_hash
 
-from db_worker import return_channels
+from data.db import return_channels
 
 def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
                     n_test_chars=50, check_pattern_func=None,
@@ -25,7 +25,6 @@ def telegram_parser(session, api_id, api_hash, telegram_channels, posted_q,
             return
         header = event.raw_text.split('/n'[0])
         news_text = ' '.join(event.raw_text.split('\n')[:2])
-        print(news_text)
 
         if not (check_pattern_func is None):
             if not check_pattern_func(news_text):

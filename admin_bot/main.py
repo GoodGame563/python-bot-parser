@@ -12,7 +12,7 @@ dp = Dispatcher()
 async def send_welcome(message: types.Message):
     await message.answer("Привет, я бот для настройки бота-агрегатора новостей.", reply_markup= reply.main_menu_markup)
 
-@dp.message(or_f(Command("edit"), (F.text.lower() == "Управление источниками")))
+@dp.message(or_f(Command("edit"), (F.text.lower() == "Управление")))
 async def source(message: types.Message):
     await message.answer("Перед вами открылось меню для редактирвоания в которое входит редактирования источников для парсинга.", reply_markup= reply.manage_sources_markup)
 

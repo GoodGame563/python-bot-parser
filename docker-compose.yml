@@ -1,11 +1,37 @@
-version: '3.7'
+version: '3.8'
+networks:
+  main:
+    driver: bridge
+
 
 services:
-    microservice:
-        build:
-            context: ./news_aggregator
-        image: news-maker
-        container_name: news-maker
-        restart: unless-stopped
 
-        command: ["python3", "main.py"]
+    parser:
+        build:
+            context: ./parser
+        image: parser
+        container_name: parser
+        restart: unless-stopped
+        command: ["python3", "parser.py"]
+        environment:
+            - ports= ${DATA_DB_PORTS}
+        networks:
+            - main
+    mongoDB:
+        image: mongo:7.0.9
+        container_name: 'dataDb'
+        restart: unless-stopped
+        ports:
+            - ${DATA_DB_PORTS}
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${DATA_DB_ROOT_USER}
+            MONGO_INITDB_ROOT_PASSWORD: ${DATA_DB_ROOT_PASS}
+            MONGO_INITDB_DATABASE: application_database
+
+        volumes: # optional to preserve database after container is deleted.
+            - ./data/mongo/mongodb_data_container:/data/db
+        networks:
+            - main
+
+volumes:
+  mongodb_data_container:

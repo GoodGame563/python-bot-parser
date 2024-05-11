@@ -11,7 +11,7 @@ from utils import create_logger, get_history, send_error_message
 from config import api_id, api_hash, gazp_chat_id, bot_token
 
 
-from db_worker import return_channels
+from data.db import return_channels
 
 ###########################
 # Можно добавить телеграм канал, rss ссылку или изменить фильтр новостей
