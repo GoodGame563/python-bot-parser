@@ -2,9 +2,12 @@ import logging  # стандартная библиотека для логир�
 import parser_functions  # библиотека этого парсера
 import os
 
+
+
 from telethon import TelegramClient, events, sync, connection  # pip3 install telethon
 
 from config import api_id, api_hash  # получение айди и хэша нашего приложения из файла config.py
+
 
 
 #api_id = os.environ['API_ID']
@@ -25,13 +28,15 @@ def parse_channels(url):
 
     logging.info(f"parsing channel {url}")  # сообщение об обрабатываемом канале в лог
 
-    with TelegramClient('new', api_id, api_hash) as tc:  # запуск клиента
+    with TelegramClient('new_session', api_id, api_hash) as tc:  # запуск клиента
         try:
             err = parser_functions.parse(tc, url)  # обработка сообщений
+           
             if err:  # обработка возможных ошибок и запись их в лог
                 logging.warning(err)
             else:  # запись в лог об успешной работе при отсутствии ошибок
                 logging.info("parsing done successfully")
+                tc.disconnect()
 
         except Exception as ex:  # обработка критической ошибки вроде ввода некорректной ссылки на канал, или отсутствия
                                 # доступа к каналу
@@ -43,4 +48,6 @@ def parse_channels(url):
     else:
         logging.warning("some errors occurred during script execution")
 
-parse_channels("https://t.me/piratecat24")
+parse_channels("https://t.me/kommersant18")
+
+
