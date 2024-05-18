@@ -10,5 +10,4 @@ minio/
 
 test_*
 
-.env-clear
 .env
