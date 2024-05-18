@@ -1,7 +1,6 @@
 
 import time
 from telethon.tl.types import MessageEntityTextUrl
-from glob import glob
 from dateutil.relativedelta import relativedelta  # pip3 install python-dateutil
 
 import datetime
@@ -96,7 +95,6 @@ def parse(client, url):
     oldest += relativedelta(seconds=1) 
     for message in client.iter_messages(url, reverse=True, offset_date=oldest):
         try:
-            time.sleep(0.5)
             directory_name = str(message.id) 
             if message.message:
                 if (get_text_from_filters(message.message)):

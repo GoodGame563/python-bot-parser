@@ -3,8 +3,14 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart, or_f, Command
 
 from kbds import reply
+from dotenv import load_dotenv
+from os import environ
 
-bot = Bot(token='7064443400:AAGYVAtnIDmJRGEnZ89hzzqjYvKJV5zNAZI')
+load_dotenv()
+
+bot_token = environ.get('BOT_TOKEN')
+
+bot = Bot(token=bot_token)
 
 dp = Dispatcher()
 

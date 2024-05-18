@@ -8,5 +8,7 @@ minio/
 *.log
 
 
+test_*
 
-
+bot/telegramm_bot/mem.py
+.env-clear

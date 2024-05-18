@@ -1,98 +1,129 @@
 import pymongo
 import os
-import logging
 import datetime
-#ports = int(os.environ['ports'].split(':')[0])
+from dotenv import load_dotenv
 
+load_dotenv()
+url_connection = os.environ.get('DATA_DB_URL')
+root_user = os.environ.get('DATA_DB_ROOT_USER')
+root_password = os.environ.get('DATA_DB_ROOT_PASS')
+port = os.environ.get('DATA_DB_PORT_DESKTOP')
 
+def get_url_connection():
+    if(url_connection is None):
+        return None
+    if(root_user is None):
+        return None
+    if(root_password is None):
+        return None
+    if(port is None):
+        return None
+    return pymongo.MongoClient(f"mongodb://{root_user}:{root_password}@{url_connection}:{port}/")
+    
 def check_exist_database_if_create():
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+    telegram_channels_collection = list()
+    if(os.environ.get('DEFAULT_VALUES_TELEGRAMM_CHANNELS_Id') is None):
+        return None
+    if(os.environ.get('DEFAULT_VALUES_TELEGRAMM_CHANNELS_Path') is None):
+        return None
+    id_channels_collection = os.environ.get('DEFAULT_VALUES_TELEGRAMM_CHANNELS_Id').replace(" ","").split(",")
+    path_channels_collection = os.environ.get('DEFAULT_VALUES_TELEGRAMM_CHANNELS_Path').replace(" ","").split(",")
+    if(len(id_channels_collection) != len(path_channels_collection)):
+        return None
+    for i in range(len(id_channels_collection)):
+        telegram_channels_collection.append({
+            "id": int(id_channels_collection[i]),
+            "link_channel": path_channels_collection[i],
+            "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
+        })
+    
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
+    
     info = client.info
-    telegram_channels_collection = info.telegram_channels
-    if telegram_channels_collection.count_documents({}) == 0:
-        telegram_channels_collection.insert_many([
-            {
-                "id": 1107107975,
-                "link_channel": 'https://t.me/brechalov',
-                "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
-            },
-            {
-                "id": 1696477325,
-                "link_channel": 'https://t.me/yaroslav_semenov',
-                "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
-            },
-            {
-                "id": 2032566955,
-                "link_channel": 'https://t.me/kommersant18',
-                "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
-            },
-            {
-                "id": 1038973822,
-                "link_channel": 'https://t.me/susaninudm',
-                "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
-            },
-            {
-                "id": 1099350027,
-                "link_channel": 'https://t.me/rusbrief',
-                "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
-            }
-        ])
-    else:
-      print("Alredy exsist telegram channels")
-    key_words_collection = info.key_words
-    if key_words_collection.count_documents({}) == 0:
-        key_words_collection.insert_many([
-          {"word":"экономик"},
-          {"word":"бизнес"},
-          {"word":"инвестиц"},
-          {"word":"инвестиции"},
-          {"word":"бюджет"},
-          {"word":"a"}
-        ])
-    else:
-      print("Alredy exsist key words")
+    telegram_channels_table = info.telegram_channels
+
+    if telegram_channels_table.count_documents({}) != 0:
+        print("Alredy exsist telegram channels")
+        return True
+    words = os.environ.get('DEFAULT_VALUES_WORDS')
+    if(words is not None):
+        words_collection = list()
+        for word in words.replace(" ","").split(","):
+            words_collection.append({
+                "word": word
+            })
+
+        key_words_collection = info.key_words
+        if key_words_collection.count_documents({}) == 0:
+            key_words_collection.insert_many(words_collection)
+        else:
+            print("Alredy exsist key words")
+    if telegram_channels_table.count_documents({}) == 0: telegram_channels_table.insert_many(telegram_channels_collection)
     client.close()
 
 def get_telegramm_channels():
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
-    check_exist_database_if_create()
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     telegram_channels_collection = info.telegram_channels
     telegram_channels = {}
     for channel in telegram_channels_collection.find():
-      telegram_channels[channel['id']] = (channel['link_channel'], channel['last_updated'])
+        if channel.get("id") is not None:
+            telegram_channels[channel['id']] = (channel['link_channel'], channel['last_updated'])
     client.close()
     return telegram_channels
 
-def get_documents_from_channels_before_date(id: str, date):
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+def get_documents_from_channels_before_date(id: str, date: datetime.datetime):
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     telegram_channels_collection = info.get_collection(id)
     if type(date) == datetime.datetime:
         return telegram_channels_collection.find({"date":{"$gte": date}}).sort("_id")
     
-
-def add_telegram_channel(url, id):
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+def add_telegram_channel(url: str, id: int):
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     telegram_channels_collection = info.telegram_channels
-    telegram_channels_collection.insert_one({
-        "id": id,
-        "link_channel": url,
-        "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
-    })
+    if check_telegram_channel(id) is None:
+        telegram_channels_collection.insert_one({
+            "id": int(id),
+            "link_channel": url,
+            "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
+        })
     client.close()
 
-def delete_telegram_channel(id):
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+def check_telegram_channel(id: int):
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
+    info = client.info
+    telegram_channels_collection = info.telegram_channels
+    channel = telegram_channels_collection.find_one({"id": id})
+    if channel is None:
+        return None
+    client.close()
+    return channel
+
+def delete_telegram_channel(id: int):
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     telegram_channels_collection = info.telegram_channels
     telegram_channels_collection.delete_one({"id": id})
     client.close()
 
-
 def get_key_words():
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     key_words_collection = info.key_words
     key_words = {}
@@ -102,7 +133,9 @@ def get_key_words():
     return key_words
 
 def create_new_channel_parsing(id: str, date: datetime, text:str, id_collection:int):
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     telegram_channels_collection = info.get_collection(id)
     telegram_channels_collection.insert_one({
@@ -115,15 +148,18 @@ def create_new_channel_parsing(id: str, date: datetime, text:str, id_collection:
     client.close()
 
 def update_data(id: str, date: datetime):
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     telegram_channels_collection = info.telegram_channels
     telegram_channels_collection.update_one({"id": int(id)}, {"$set": {"last_updated": date}})
     client.close()
 
-
 def check_post_exist(id:str, date:datetime):
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     collections = info.list_collection_names()
     if str(id) in collections:
@@ -136,7 +172,9 @@ def check_post_exist(id:str, date:datetime):
     return False
 
 def add_image(id:str, url, date:datetime):
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     telegram_channel_collection = info.get_collection(id)
     result = telegram_channel_collection.find_one({"date": date})
@@ -159,9 +197,10 @@ def add_image(id:str, url, date:datetime):
     else:
         return False
 
-
 def return_data_last_changed_collection(id: int):
-    client = pymongo.MongoClient(f"mongodb://root:root@localhost:8000/")
+    if(get_url_connection() is None):
+        return None
+    client = get_url_connection()
     info = client.info
     telegram_channels_collection = info.telegram_channels
     #print(id)
@@ -172,11 +211,4 @@ def return_data_last_changed_collection(id: int):
     else:   
         return result["last_updated"]
 
-#print(check_post_exist(2054430930,  datetime.datetime.strptime("2024-05-10 19:26:48", '%Y-%m-%d %H:%M:%S')))
-#print(return_data_last_changed_collection(2054430930))
-
-#get_telegramm_channels()
-#add_telegram_channel("https://t.me/piratecat24", 2054430930)
-#url1 = ["mem.jpg", "dasdasd.jpg"]
-#create_new_channel_parsing('1099350027', datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"), "fdsfdsfsdfsdfsdfsfdsfsdfdsf", 3)
-#add_image('1099350027',"fgdgfd",3, datetime.datetime.strptime("1970-02-01 00:00:00", "%Y-%m-%d %H:%M:%S"))
+#print(check_telegram_channel(2032566952))

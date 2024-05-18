@@ -1,17 +1,14 @@
 import logging  # стандартная библиотека для логирования
 import parser_functions  # библиотека этого парсера
-import os
+from dotenv import load_dotenv
+from os import environ
+from telethon import TelegramClient
 
 
+load_dotenv()
 
-from telethon import TelegramClient, events, sync, connection  # pip3 install telethon
-
-from config import api_id, api_hash  # получение айди и хэша нашего приложения из файла config.py
-
-
-
-#api_id = os.environ['API_ID']
-#api_hash = os.environ['API_HASH']
+api_id = environ.get('API_ID')
+api_hash = environ.get('API_HASH')
 
 # настройка логгера
 logging.basicConfig(
@@ -48,6 +45,6 @@ def parse_channels(url):
     else:
         logging.warning("some errors occurred during script execution")
 
-parse_channels("https://t.me/kommersant18")
+parse_channels("t.me/piratecat24")
 
 
