@@ -1,11 +1,53 @@
-version: '3.7'
+version: '3.8'
+networks:
+    mongo_network:
+        driver: bridge
+    minio_net:
+        driver: bridge
+
+x-minio-common: &minio-common
+    image: quay.io/minio/minio:RELEASE.2024-05-10T01-41-38Z
+    command: server --console-address :${MINIO_PORT_CONSOLE_ADDRESS} /mnt/data
+    ports:
+        - ${MINIO_URL}:${MINIO_PORT_PROGRAMM_ADDRESS_DESKTOP}:${MINIO_PORT_PROGRAMM_ADDRESS}
+        - ${MINIO_URL}:${MINIO_PORT_CONSOLE_ADDRESS_DESKTOP}:${MINIO_PORT_CONSOLE_ADDRESS}
+    healthcheck:
+        test: ["CMD", "mc", "ready", "local"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
+    
 
 services:
-    microservice:
-        build:
-            context: ./news_aggregator
-        image: news-maker
-        container_name: news-maker
-        restart: unless-stopped
+    minio1:
+        <<: *minio-common
+        hostname: minio1
+        volumes:
+            - type: bind
+              source:  bot/data/minio/files
+              target:  /mnt/data
+            - type: bind
+              source:  .env
+              target:  /etc/config.env
+        networks:
+            - minio_net
 
-        command: ["python3", "main.py"]
+
+    mongoDB:
+        image: mongo:7.0.9
+        container_name: 'dataDb'
+        #command: mongod --port ${DATA_DB_PORT_CONTAINER}
+        restart: unless-stopped
+        ports:
+            - ${DATA_DB_URL}:${DATA_DB_PORT_DESKTOP}:${DATA_DB_PORT_CONTAINER}
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: ${DATA_DB_ROOT_USER}
+            MONGO_INITDB_ROOT_PASSWORD: ${DATA_DB_ROOT_PASS}
+            MONGO_INITDB_DATABASE: application_database
+        volumes:
+            - /bot/data/mongo/mongodb_data_container:/data/db
+        networks:
+            - mongo_network
+
+volumes:
+    mongodb_data_container:

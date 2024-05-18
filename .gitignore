@@ -1,0 +1,14 @@
+test
+record/
+mongo/
+__pycache__/
+minio/
+
+*.session
+*.log
+
+
+test_*
+
+bot/telegramm_bot/mem.py
+.env-clear
