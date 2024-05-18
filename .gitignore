@@ -10,5 +10,5 @@ minio/
 
 test_*
 
-bot/telegramm_bot/mem.py
 .env-clear
+.env

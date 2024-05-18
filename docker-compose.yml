@@ -19,6 +19,14 @@ x-minio-common: &minio-common
     
 
 services:
+    bot:
+        container_name: parse-bot
+        ports:
+            - 1234:1234
+        restart: unless-stopped
+        build: /bot
+
+
     minio1:
         <<: *minio-common
         hostname: minio1
@@ -31,7 +39,6 @@ services:
               target:  /etc/config.env
         networks:
             - minio_net
-
 
     mongoDB:
         image: mongo:7.0.9

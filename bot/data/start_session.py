@@ -15,6 +15,6 @@ client = TelegramClient("test_session", api_id=api_id, api_hash=api_hash,device_
 
 assert client.connect()
 
-client.send_code_request(phone_number)
+client.send_code_request(str(phone_number))
 
 me = client.sign_in(phone_number, input('Enter code: '))
