@@ -17,6 +17,7 @@ from minio_function import add_file
 main_folder = "record"
 
 def get_text_from_filters(text):
+    return True
     words = get_key_words()
     if len(words) == 0: 
         return True
