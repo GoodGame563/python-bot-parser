@@ -43,7 +43,7 @@ services:
     mongoDB:
         image: mongo:7.0.9
         container_name: 'dataDb'
-        #command: mongod --port ${DATA_DB_PORT_CONTAINER}
+        command: mongod --port ${DATA_DB_PORT_CONTAINER}
         restart: unless-stopped
         ports:
             - ${DATA_DB_URL}:${DATA_DB_PORT_DESKTOP}:${DATA_DB_PORT_CONTAINER}
