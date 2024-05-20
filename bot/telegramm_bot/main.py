@@ -30,21 +30,21 @@ async def send_welcome(message: types.Message):
     log_admin_bot().send_debug(f"Received /start command from user: {message.from_user.id}")
     await message.answer("Привет, я бот для настройки бота-агрегатора новостей.", reply_markup=reply.main_menu_markup)
 
+@dp.message(F.text.lower() == "управление источниками")
+async def source(message: types.Message):
+    log_admin_bot().send_debug(f"Received 'управление источниками' command from user: {message.from_user.id}")
+    await message.answer("Перед вами открылось меню в которое входит: редактирования, удаления, добавления, источников для парсинга.", reply_markup=reply.manage_sources_markup)
+
 #вот этот код надо повторить минтик
 class AddSource(StatesGroup):
     id_field = State()
     url_field = State()
-    
 
     texts = {
         'AddSource:id_field': 'Введите id канала заново',
         'AddSource:url_field': 'Введите url канала заново'
     }
 
-@dp.message(F.text.lower() == "управление источниками")
-async def source(message: types.Message):
-    log_admin_bot().send_debug(f"Received 'управление источниками' command from user: {message.from_user.id}")
-    await message.answer("Перед вами открылось меню в которое входит: редактирования, удаления, добавления, источников для парсинга.", reply_markup=reply.manage_sources_markup)
 
 @dp.message(StateFilter(None), F.text.lower() == "добавить источник для парсинга")
 async def source(message: types.Message, state: FSMContext):
@@ -90,6 +90,101 @@ async def add_url2(message: types.Message, state: FSMContext):
     await message.answer("Вы ввели не допустимые данные")
 
 #вот тут он кончается
+
+class ReductSource(StatesGroup):
+    id_field_change = State()
+    where_field_change = State()
+    id_field = State()
+    url_field = State()
+
+    texts = {
+        'ReductSource:id_field_change': 'Введите поле замены канала заново',
+        'ReductSource:why_field_change': 'Введите поле замены канала заново',
+        'ReductSource:id_field': 'Введите id канала заново',
+        'ReductSource:url_field': 'Введите url канала заново',
+    }
+
+@dp.message(StateFilter(None), F.text.lower() == "редактировать источник для парсинга")
+async def source(message: types.Message, state: FSMContext):
+    log_admin_bot().send_debug(f"Received 'редактировать источник для парсинга' command from user: {message.from_user.id}")
+    telegram_channel = get_telegramm_channels()
+    for d in telegram_channel:
+        await message.answer(f"id:{d} url:{telegram_channel[d][0]}", reply_markup=types.ReplyKeyboardRemove())
+    await message.answer("Введите id канала который надо поменять", reply_markup=types.ReplyKeyboardRemove())
+    await state.set_state(ReductSource.id_field_change)
+
+
+@dp.message(ReductSource.id_field_change, F.text)
+async def add_id(message: types.Message, state: FSMContext):
+    if not message.text.isdigit:
+        await message.answer("Поле id должно содержать только цифры \n Введите заново")
+        return
+    if len(message.text) != 10:
+        await message.answer("Поле id должно быть по длине 10 символов \n Введите заново")
+        return
+    if get_telegram_channel_by_id(int(message.text)) is None:
+        await message.answer("Канал с таким id не существует \n Введите заново")
+        return
+    await state.update_data(id_field_change=message.text)
+    await message.answer("Введите какое поле надо поменять 1:id 2:url")
+    await state.set_state(ReductSource.where_field_change)
+
+@dp.message(ReductSource.id_field_change)
+async def add_id2(message: types.Message, state: FSMContext):
+    await message.answer("Вы ввели не допустимые данные")
+
+@dp.message(ReductSource.where_field_change, F.text)
+async def add_id(message: types.Message, state: FSMContext):
+    if not message.text.isdigit:
+        await message.answer("Поле id должно содержать только цифры \n Введите заново")
+        return
+    if int(message.text) == 1:
+        await message.answer("Введите id:")
+        await state.set_state(ReductSource.id_field)
+        await state.update_data(where_field_change=message.text)
+    if int(message.text) == 2:
+        await message.answer("Введите url:")
+        await state.set_state(ReductSource.url_field)
+        await state.update_data(where_field_change=message.text)
+    else:
+        await message.answer("Вы ввели не допустимые данные")
+
+@dp.message(ReductSource.id_field_change)
+async def add_id2(message: types.Message, state: FSMContext):
+    await message.answer("Вы ввели не допустимые данные")
+
+@dp.message(ReductSource.id_field, F.text)
+async def add_id(message: types.Message, state: FSMContext):
+    if not message.text.isdigit:
+        await message.answer("Поле id должно содержать только цифры \n Введите заново")
+        return
+    if len(message.text) != 10:
+        await message.answer("Поле id должно быть по длине 10 символов \n Введите заново")
+        return
+    if get_telegram_channel_by_id(int(message.text)) is not None:
+        await message.answer("Канал с таким id уже существует \n Введите заново")
+        return
+    await state.update_data(id_field=message.text)
+    data = await state.get_data()
+    await state.clear()
+    await message.answer("Канал был изменен", reply_markup=reply.manage_sources_markup)
+
+@dp.message(ReductSource.id_field)
+async def add_id2(message: types.Message, state: FSMContext):
+    await message.answer("Вы ввели не допустимые данные")
+
+@dp.message(ReductSource.url_field, F.text)
+async def add_url(message: types.Message, state: FSMContext):
+    if not ("https://t.me/" in message.text):
+        await message.answer("Поле url должно сооветствовать вот такому формату https://t.me/<название> \n Введите заново")
+        return
+    if get_telegram_channels_by_url(message.text.replace(" ","")) is not None:
+        await message.answer("Канал с таким url уже существует \n Введите заново")
+        return
+    await state.update_data(url_field=message.text)
+    await message.answer("Канал был изменен", reply_markup=reply.manage_sources_markup)
+    data = await state.get_data()
+    await state.clear()
 
 
 @dp.message(F.text.lower() == "back")
