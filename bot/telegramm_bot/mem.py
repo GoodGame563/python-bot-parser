@@ -15,7 +15,7 @@ from dateutil.relativedelta import relativedelta  # pip3 install python-dateutil
 from minio_function import get_file
 import datetime
 sys.path.append(os.path.join(os.getcwd(), '..'))
-from data.db import get_documents_from_channels_before_date
+from data.telegram_channel_db import get_documents_from_telegram_channels_before_date
 
 bot = Bot(token='7064443400:AAGYVAtnIDmJRGEnZ89hzzqjYvKJV5zNAZI')
 chat = -1002096816791
@@ -26,7 +26,7 @@ dp = Dispatcher()
 async def send_welcome(message: types.Message):
     await message.answer("Привет, я бот для настройки бота-агрегатора новостей.", reply_markup= reply.main_menu_markup)
    
-    mem = get_documents_from_channels_before_date("2032566955", oldest)
+    mem = get_documents_from_telegram_channels_before_date("2032566955", oldest)
     if mem is not None:
         for document in mem:
             text_to = text(bold(document["text"].split("\n")[0])+ "\n" + "\n".join(document["text"].split('\n')[1:]) +"\n" + f"Источник {namechannel}")

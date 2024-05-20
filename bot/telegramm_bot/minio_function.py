@@ -26,7 +26,6 @@ def get_file(filename):
         responce = client.get_object(bucket_name, f"{filename}")
         byte = responce.read()
     finally:
-        time.sleep(1)
         responce.close()
         responce.release_conn() 
     print("Success")
