@@ -43,10 +43,12 @@ async def get_channel_id(client, link):  # получение ID канала
 
 def clearify_text(msg):  # очищение текста от символов гиперссылки
     text = msg.message
+    
     find_int_dog = text.find('@')
     if find_int_dog != -1:
+        print("Found")
         find_int_end_word = text.find(' ',  find_int_dog)
-        text = text[:find_int_dog] + text[find_int_end_word+1:]
+        text = text[:find_int_dog-1] + text[find_int_end_word+1:]
     find_int_cross = text.find('#')
     if find_int_cross!= -1:
         find_int_end_word = text.find(' ', find_int_cross)
@@ -67,7 +69,7 @@ def find_last_parsed_date(id:int):
     if oldest is None:
         return None
     if temp == oldest:
-        oldest = datetime.datetime.now() - relativedelta(months=1)  # если сообщений нет, офсет устанавливается на                                                   # три месяца от текущей даты
+        oldest = datetime.datetime.now() - relativedelta(days=1)  # если сообщений нет, офсет устанавливается на                                                   # три месяца от текущей даты
     return oldest
 
 

@@ -50,7 +50,6 @@ services:
         environment:
             MONGO_INITDB_ROOT_USERNAME: ${DATA_DB_ROOT_USER}
             MONGO_INITDB_ROOT_PASSWORD: ${DATA_DB_ROOT_PASS}
-            MONGO_INITDB_DATABASE: application_database
         volumes:
             - /bot/data/mongo/mongodb_data_container:/data/db
         networks:

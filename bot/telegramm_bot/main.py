@@ -10,7 +10,7 @@ from work_to_parse import start_parsing
 from kbds import reply
 from dotenv import load_dotenv
 from data.telegram_channel_db import *
-
+from work_to_post_in_channel import print_post
 sys.path.append(os.path.join(os.getcwd(), '..'))
 
 from logs.loging import log_admin_bot
@@ -236,8 +236,9 @@ async def text(message: types.Message):
 async def main():
     task1 = asyncio.create_task(dp.start_polling(bot))
     task2 = asyncio.create_task(start_parsing())
+    task3 = asyncio.create_task(print_post(bot))
 
-    await asyncio.gather(task1, task2)
+    await asyncio.gather(task1, task2, task3)
     log_admin_bot().send_info("bot started")
     
 

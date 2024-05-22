@@ -27,7 +27,8 @@ def add_telegram_channel(url: str, id: int):
             telegram_channels_collection.insert_one({
                 "id": int(id),
                 "link_channel": url,
-                "last_updated": datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
+                "last_updated": datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"),
+                "last_send": datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
             })
             log_db().send_info(f"Channel with ID {id} added successfully.")
             return True
@@ -187,7 +188,7 @@ def get_telegramm_channels():
         telegram_channels = {}
         for channel in telegram_channels_collection.find():
             if channel.get("id") is not None:
-                telegram_channels[channel['id']] = (channel['link_channel'], channel['last_updated'])
+                telegram_channels[channel['id']] = (channel['link_channel'], channel['last_updated'], channel['last_send'])
 
         if len(telegram_channels) == 0:
             log_db().send_info("No telegram channels found.")
@@ -202,6 +203,69 @@ def get_telegramm_channels():
         client.close()
         log_db().send_debug("URL connection closed.")
 
+def update_telegram_channel_last_send(id:int, date: datetime):
+    log_db().send_info(f"Starting update_telegram_channel_last_send() function for channel ID {id}.")
+
+    connection = get_url_connection()
+    if connection is None:
+        log_db().send_error("Failed to get URL connection.")
+        return None
+
+    log_db().send_debug("URL connection established.")
+
+    try:
+        client = connection
+        info = client.info
+        telegram_channels_collection = info.telegram_channels
+
+        log_db().send_debug(f"Updating last_updated for channel with ID {id}.")
+        result = telegram_channels_collection.update_one(
+            {"id": id},
+            {"$set": {"last_send": date}}
+        )
+        
+        if result.modified_count == 0:
+            log_db().send_info(f"Telegram channel with ID {id} not found.")
+            return False
+        else:
+            log_db().send_info(f"Telegram channel with ID {id} updated successfully.")
+            return True
+    except Exception as e:
+        log_db().send_critical(f"An error occurred while updating channel with ID {id}: {str(e)}")
+        return None
+    finally:
+        client.close()
+        log_db().send_debug("URL connection closed.")
+
+def exists_new_update(id:int):
+    log_db().send_info(f"Starting update_telegram_channel_last_send() function for channel ID {id}.")
+
+    connection = get_url_connection()
+    if connection is None:
+        log_db().send_error("Failed to get URL connection.")
+        return None
+
+    log_db().send_debug("URL connection established.")
+    try:
+        tg_channel = get_telegram_channel_by_id(id)
+        if tg_channel is not None:
+            last_send = tg_channel.get("last_send")
+            last_update = tg_channel.get("last_updated")
+            if last_send is None:
+                log_db().send_info(f"Telegram channel with ID {id} does not have last_send.")
+                return False
+            else:
+                log_db().send_info(f"Telegram channel with ID {id} has last_send.")
+                if last_send != last_update:
+                    return True
+                else:
+                    return False
+                
+    except Exception as e:
+        log_db().send_critical(f"An error occurred while updating channel with ID {id}: {str(e)}")
+        return None
+    finally:
+        log_db().send_debug("URL connection closed.")
 
 #work with documents 
 def check_post_exist_in_telegram_channel(id: str, date: datetime):
@@ -367,7 +431,10 @@ def get_documents_from_telegram_channels_before_date(id: str, date: datetime):
 
         log_db().send_info(f"Fetching documents from channel ID {id} before date {date}.")
         if isinstance(date, datetime):
-            documents = telegram_channels_collection.find({"date": {"$gte": date}}).sort("_id")
+            documents = list()
+            cursor = telegram_channels_collection.find({"date": {"$gte": date}})
+            for doc in cursor:
+                documents.append(doc)
             log_db().send_info(f"Documents fetched successfully from channel ID {id} before date {date}.")
             return documents
         else:

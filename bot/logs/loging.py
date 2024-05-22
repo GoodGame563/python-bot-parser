@@ -38,6 +38,6 @@ class log_db(log_default):
         if self.logger.handlers == [] or create:
             self.logger.setLevel(logging.DEBUG)
             ch_db = logging.FileHandler('../logs/db_log.log', 'w', encoding='utf-8')
-            ch_db.setLevel(logging.INFO)
+            ch_db.setLevel(logging.DEBUG)
             ch_db.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
             self.logger.addHandler(ch_db)

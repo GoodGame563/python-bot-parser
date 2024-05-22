@@ -56,7 +56,8 @@ def check_exist_database_if_create():
         telegram_channels_collection.append({
             "id": int(id_channels_collection[i]),
             "link_channel": path_channels_collection[i],
-            "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
+            "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"),
+            "last_send": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
         })
     
     connection = get_url_connection()
