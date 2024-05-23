@@ -100,3 +100,29 @@ def check_exist_database_if_create():
     finally:
         client.close()
         log_db().send_info("URL connection closed.")
+
+def set_basic_parameters():
+    log_db().send_info("Starting set_basic_parameters() function.")
+    connection = get_url_connection()
+    if connection is None:
+        log_db().send_error("Failed to get URL connection.")
+        return None
+    log_db().send_debug("URL connection established.")
+
+    client = connection
+    info = client.info
+    settings = info.settings
+    is_posting_image = bool(os.environ.get('POST_IMAGE') == 'True')
+    is_to_create_link_to_source = bool(os.environ.get('LINK_TO_SOURCE') == 'True')
+    parser_enabled = bool(os.environ.get('POST_IMAGE') == 'True')
+    send_post_enabled = bool(os.environ.get('LINK_TO_SOURCE') == 'True')
+
+
+    if settings.estimated_document_count() == 0 and is_posting_image is not None and is_to_create_link_to_source is not None:
+        work_on_time_enabled = bool(os.environ.get('WORK_ON_TIME_ENABLED') == 'True') if (os.environ.get('WORK_ON_TIME_ENABLED') is not None) else False
+        if work_on_time_enabled:
+            start_time = datetime.datetime.strptime(os.environ.get('START_TIME'), "%H:%M:%S")
+            end_time = datetime.datetime.strptime(os.environ.get('END_TIME'), "%H:%M:%S")
+            settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "start_time":start_time, "end_time":end_time, "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled})
+        else:
+            settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled})

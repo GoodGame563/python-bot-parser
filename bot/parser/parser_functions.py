@@ -10,7 +10,7 @@ import shutil
 
 sys.path.append(os.path.join(os.getcwd(), '..'))
 from data.telegram_channel_db import create_new_telegram_channel_parsing, return_data_last_changed_telegram_channel, add_image_to_telegram_channel, check_post_exist_in_telegram_channel, update_date_telegram_channel 
-from data.db import get_key_words
+from data.key_words_db import get_key_words
 from parser.minio_function import add_file
 from logs.loging import log_parser_bot
 

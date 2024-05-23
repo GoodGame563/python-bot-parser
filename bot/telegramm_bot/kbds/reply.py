@@ -31,10 +31,10 @@ manage_sources_markup = ReplyKeyboardMarkup(
             KeyboardButton(text ="Редактировать источник для парсинга"),
         ],    
         [ 
-            KeyboardButton(text ="Удаление всего списка для парсинга")
+            KeyboardButton(text ="Удаление источника для парсинга")
         ],
         [
-            KeyboardButton(text = "back"),
+            KeyboardButton(text = "Назад"),
         ]
     ],
     resize_keyboard=True,
@@ -52,7 +52,7 @@ time_markup = ReplyKeyboardMarkup(
             KeyboardButton(text="Выключить бота"),
         ],
         [
-            KeyboardButton(text = "back"),
+            KeyboardButton(text = "Назад"),
         ],
     ],
     resize_keyboard=True,
@@ -66,7 +66,7 @@ raspisanie_markup = ReplyKeyboardMarkup(
             KeyboardButton(text="Бот будет рабоать до"),
         ],
         [
-            KeyboardButton(text = "back"),
+            KeyboardButton(text = "Назад"),
         ],
         
     ],
@@ -77,16 +77,16 @@ raspisanie_markup = ReplyKeyboardMarkup(
 filter_post_markup = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text = "Введите ключевые слова для фильтра"),
+            KeyboardButton(text = "Добавление ключевых слов для фильтра"),
         ],
         [
-            KeyboardButton(text ="Редактировать ключевые слова  для фильтра"),
+            KeyboardButton(text ="Редактирование ключевого слова из фильтра"),
         ],    
         [ 
-            KeyboardButton(text ="Удаление всех ключевых слов из фильтра"),
+            KeyboardButton(text ="Удаление ключевого слова из фильтра"),
         ],
         [
-            KeyboardButton(text = "back")
+            KeyboardButton(text = "Назад")
         ]
     ],
     resize_keyboard=True,
@@ -96,16 +96,13 @@ filter_post_markup = ReplyKeyboardMarkup(
 edit_post_markup = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text = "Принятие или отклонение поста"),
-        ],
-        [
             KeyboardButton(text ="Парсить статьи вместе с картинками"),
         ],    
         [ 
             KeyboardButton(text ="Оставлять гипер ссылки"),
         ],
         [
-            KeyboardButton(text = "back"),
+            KeyboardButton(text = "Назад"),
         ]
     ],
     resize_keyboard=True,
@@ -119,7 +116,7 @@ razdel_tg_sait_markup = ReplyKeyboardMarkup(
             KeyboardButton(text="Сайты"),
         ],
         [
-            KeyboardButton(text = "back"),
+            KeyboardButton(text = "Назад"),
         ],
         
     ],
@@ -132,7 +129,7 @@ dop_vozmoc_markup = ReplyKeyboardMarkup(
             KeyboardButton(text="С какого момента парсить?"),
         ],
         [
-            KeyboardButton(text = "back"),
+            KeyboardButton(text = "Назад"),
         ],
         
     ],

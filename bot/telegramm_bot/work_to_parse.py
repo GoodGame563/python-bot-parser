@@ -22,5 +22,6 @@ async def start_parsing():
         for key in all_channels:
             channel.append(all_channels[key][0])
         if channel != {}:
-            await parser.parser.parse_channel(channel)
+            #await parser.parser.parse_channel(channel)
+            pass
         await asyncio.sleep(305)
