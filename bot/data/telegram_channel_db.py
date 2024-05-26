@@ -209,7 +209,7 @@ async def check_post_exist_in_telegram_channel(id: str, date: datetime):
 
     client  = get_url_connection()
     info = client.info
-    collections = info.list_collection_names()
+    collections = await info.list_collection_names()
 
     try:
         if str(id) in collections:

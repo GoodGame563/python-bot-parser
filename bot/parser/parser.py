@@ -1,9 +1,9 @@
-from parser.parser_functions import parse # библиотека этого парсера
+from parser.parser_functions import parse 
 from dotenv import load_dotenv
 from os import environ
 import os
 import sys
-from telethon import TelegramClient, events, connection
+from telethon import TelegramClient
 from logs.loging import log_parser_bot
 sys.path.append(os.path.join(os.getcwd(), '..'))
 
@@ -16,10 +16,10 @@ log = log_parser_bot()
 if api_id is None and api_hash is None:
     assert ()
 else:
-    log.send_info("script started")  # сообщение о начале работы в лог
+    log.send_info("script started") 
 
 async def parse_channel(url_list:list ):
-    async with TelegramClient('new', api_id, api_hash, device_model='Samsung Galaxy S20 FE, running Android 13', system_version='4.16.30-vxCUSTOM', app_version='1.0.1') as tc:
+    async with TelegramClient('../session/new', api_id, api_hash, device_model='Samsung Galaxy S20 FE, running Android 13', system_version='4.16.30-vxCUSTOM', app_version='1.0.1') as tc:
         for url in url_list:
             try:
                 log.send_info(f"parsing channel {url}")

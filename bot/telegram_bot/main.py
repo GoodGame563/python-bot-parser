@@ -3,13 +3,9 @@ import os
 import sys
 
 
-from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.strategy import FSMStrategy
+sys.path.append(os.path.join(os.getcwd(), '..'))
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import CommandStart, or_f, Command, StateFilter
-from aiogram.types import ReplyKeyboardRemove
-from handlers.filters import ChatTypeFilter, IsAdmin 
+from aiogram.filters import CommandStart, StateFilter
 
 
 
@@ -27,7 +23,6 @@ from handlers.user_group import user_group_router
 from data.base_connection_db import *
 
 
-sys.path.append(os.path.join(os.getcwd(), '..'))
 load_dotenv()
 
 

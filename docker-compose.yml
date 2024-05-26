@@ -21,10 +21,16 @@ x-minio-common: &minio-common
 services:
     bot:
         container_name: parse-bot
-        ports:
-            - 1234:1234
         restart: unless-stopped
         build: /bot
+        env_file:
+            - .env
+        volumes:
+            - ./bot/session:/app/session
+        networks:
+            - minio_net
+            - mongo_network
+
 
 
     minio1:
