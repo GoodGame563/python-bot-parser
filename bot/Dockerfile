@@ -1,13 +1,28 @@
-FROM python:3.10
+FROM python:3.12
 
-RUN apt-get install -yqq --no-install-recommends \
-    && pip install 'python-dateutil==2.8.2' \
-    && pip install 'Telethon==1.28.5' \
-    && pip install 'pymongo==4.7.1'\
-    && pip install 'pyminio==0.2.1'\
-    && pip install 'aiogram==3.6.0'
-    #\&& pip install 'logging==0.4.9.6'
+RUN apt-get install -yqq --no-install-recommends 
 
 WORKDIR /app
 
-ADD data/db.py data/db.py
+COPY requirements.txt requirements.txt
+
+RUN pip install -r requirements.txt
+
+ADD data/base_connection_db.py data/base_connection_db.py
+ADD data/key_words_db.py data/key_words_db.py
+ADD data/minio_function.py data/minio_function.py
+ADD data/settings_db.py data/settings_db.py
+ADD data/telegram_channel_db.py data/telegram_channel_db.py
+ADD __init__.py __init__.py
+
+ADD logs/__init__.py logs/__init__.py 
+ADD logs/loging.py logs/loging.py
+
+ADD parser/__init__.py parser/__init__.py
+ADD parser/parser_functions.py parser/parser_functions.py
+ADD parser/parser.py parser/parser.py
+
+COPY telegram_bot telegram_bot
+WORKDIR /app/telegram_bot
+
+CMD [ "python","main.py" ]

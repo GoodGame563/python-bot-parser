@@ -1,5 +1,7 @@
 version: '3.8'
 networks:
+    basic_network:
+        driver: bridge
     mongo_network:
         driver: bridge
     minio_net:
@@ -21,15 +23,21 @@ x-minio-common: &minio-common
 services:
     bot:
         container_name: parse-bot
-        ports:
-            - 1234:1234
         restart: unless-stopped
         build: /bot
-
+        env_file:
+            - .env
+        environment:
+            - POST_IN_DOCKER=True
+        volumes:
+            - ./bot/session:/app/session
+        networks:
+            - basic_network
 
     minio1:
         <<: *minio-common
         hostname: minio1
+        container_name: ${MINIO_CONTAINER_NAME}
         volumes:
             - type: bind
               source:  bot/data/minio/files
@@ -38,11 +46,11 @@ services:
               source:  .env
               target:  /etc/config.env
         networks:
-            - minio_net
+            - basic_network
 
     mongoDB:
         image: mongo:7.0.9
-        container_name: 'dataDb'
+        container_name: ${DB_CONTAINER_NAME}
         command: mongod --port ${DATA_DB_PORT_CONTAINER}
         restart: unless-stopped
         ports:
@@ -50,11 +58,11 @@ services:
         environment:
             MONGO_INITDB_ROOT_USERNAME: ${DATA_DB_ROOT_USER}
             MONGO_INITDB_ROOT_PASSWORD: ${DATA_DB_ROOT_PASS}
-            MONGO_INITDB_DATABASE: application_database
         volumes:
-            - /bot/data/mongo/mongodb_data_container:/data/db
+            - ./bot/data/mongo/mongodb_data_container:/data/db
+            - ./bot/data/mongo/backup:/backup
         networks:
-            - mongo_network
+            - basic_network
 
 volumes:
     mongodb_data_container:
