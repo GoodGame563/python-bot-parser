@@ -9,12 +9,9 @@ main_menu_markup = ReplyKeyboardMarkup(
             KeyboardButton(text = "Фильтрация постов источника"),
         ],
         [
-            KeyboardButton(text = "Редактирование поста"),
-            KeyboardButton(text = "Расписание работы"),
-        ],
-        [
+            KeyboardButton(text = "Настройки"),
             KeyboardButton(text = "Дополнительные возможности"),
-        ]
+        ],
     ],
     resize_keyboard=True,
     input_field_placeholder="Что вас интересует?"
@@ -49,7 +46,7 @@ time_markup = ReplyKeyboardMarkup(
            KeyboardButton(text="Добавить расписание работы бота"), 
         ],
         [
-            KeyboardButton(text="Выключить бота"),
+            KeyboardButton(text="Включение/отключение функций бота"),
         ],
         [
             KeyboardButton(text = "Назад"),

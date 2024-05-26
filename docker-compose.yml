@@ -51,7 +51,8 @@ services:
             MONGO_INITDB_ROOT_USERNAME: ${DATA_DB_ROOT_USER}
             MONGO_INITDB_ROOT_PASSWORD: ${DATA_DB_ROOT_PASS}
         volumes:
-            - /bot/data/mongo/mongodb_data_container:/data/db
+            - ./bot/data/mongo/mongodb_data_container:/data/db
+            - ./bot/data/mongo/backup:/backup
         networks:
             - mongo_network
 

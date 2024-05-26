@@ -10,4 +10,5 @@ minio/
 
 test_*
 
+.VSCodeCounter
 .env

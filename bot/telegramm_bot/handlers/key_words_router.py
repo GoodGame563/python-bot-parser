@@ -7,9 +7,10 @@ from kbds import reply
 from data.telegram_channel_db import *
 from logs.loging import log_admin_bot
 from data.key_words_db import *
+from handlers.filters import ChatTypeFilter, IsAdmin
 
 admin_key_words_manage_router = Router()
-
+admin_key_words_manage_router.message.filter(ChatTypeFilter(["private"]), IsAdmin())
 
 
 @admin_key_words_manage_router.message(StateFilter(None), F.text.lower() == "фильтрация постов источника")
@@ -99,10 +100,10 @@ async def reduct_target_word_new_word(message: types.Message, state: FSMContext)
     if message.text == " ":
         await message.answer("Слово фильтрации должно состоять хотя бы из одного слова")
         return
-    state.set_data(new_word = message.text().lower())
+    await state.set_data(new_word = message.text().lower())
     data = await state.get_data()
     await state.clear()
-    reduct_key_word(data['word'], data['new_word'])
+    await reduct_key_word(data['word'], data['new_word'])
     await message.answer("Ключевое слово изменено", reply_markup=reply.filter_post_markup)
     
 @admin_key_words_manage_router.message(StateFilter(ReductWords.new_word))
@@ -118,7 +119,7 @@ class DeleteWords(StatesGroup):
 
 @admin_key_words_manage_router.message(StateFilter(None), F.text.lower() == "удаление ключевого слова из фильтра")
 async def delete_key_words_router(message: types.Message, state: FSMContext):
-    key_words = get_key_words()
+    key_words = await get_key_words()
     if len(key_words) == 0 or key_words is None:
         await message.answer("Нет ключевых слов для удаления")
         return
@@ -135,7 +136,7 @@ async def delete_key_word(message: types.Message, state: FSMContext):
         return
     await state.update_data(words = message.text.lower().split(" "))
     data = await state.get_data()
-    delete_key_words(data['words'])
+    await delete_key_words(data['words'])
     await state.clear()
     await message.answer("Ключевые слова удалены", reply_markup=reply.filter_post_markup)
 

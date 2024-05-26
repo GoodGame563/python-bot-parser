@@ -1,10 +1,9 @@
-import pymongo
 import os
 import datetime
 import sys
 from dotenv import load_dotenv
 sys.path.append(os.path.join(os.getcwd(), '..'))
-
+import motor.motor_asyncio
 from logs.loging import log_db
 
 
@@ -14,6 +13,7 @@ url_connection = os.environ.get('DATA_DB_URL')
 root_user = os.environ.get('DATA_DB_ROOT_USER')
 root_password = os.environ.get('DATA_DB_ROOT_PASS')
 port = os.environ.get('DATA_DB_PORT_DESKTOP')
+
 
 def get_url_connection():
     if(url_connection is None):
@@ -28,9 +28,10 @@ def get_url_connection():
     if(port is None):
         log_db().send_critical('Could not connect to database, Error: port is none')
         return None
-    return pymongo.MongoClient(f"mongodb://{root_user}:{root_password}@{url_connection}:{port}/")
+    client = motor.motor_asyncio.AsyncIOMotorClient(f"mongodb://{root_user}:{root_password}@{url_connection}:{port}/")
+    return client
 
-def check_exist_database_if_create():
+async def check_exist_database_if_create():
     log_db().send_info("Starting check_exist_database_if_create() function.")
 
     telegram_channels_collection = list()
@@ -70,7 +71,7 @@ def check_exist_database_if_create():
     telegram_channels_table = info.telegram_channels
 
     try:
-        if telegram_channels_table.count_documents({}) != 0:
+        if await telegram_channels_table.estimated_document_count() != 0:
             log_db().send_info("Telegram channels already exist in the database.")
             return True
 
@@ -83,46 +84,40 @@ def check_exist_database_if_create():
                 })
 
             key_words_collection = info.key_words
-            if key_words_collection.count_documents({}) == 0:
+            if await key_words_collection.estimated_document_count() == 0:
                 log_db().send_debug("Inserting default key words into the database.")
-                key_words_collection.insert_many(words_collection)
+                await key_words_collection.insert_many(words_collection)
             else:
                 log_db().send_info("Key words already exist in the database.")
 
-        if telegram_channels_table.count_documents({}) == 0:
+        if await telegram_channels_table.estimated_document_count() == 0:
             log_db().send_debug("Inserting default telegram channels into the database.")
-            telegram_channels_table.insert_many(telegram_channels_collection)
+            await telegram_channels_table.insert_many(telegram_channels_collection)
 
         log_db().send_info("Database check and setup completed successfully.")
     except Exception as e:
         log_db().send_critical(f"An error occurred: {str(e)}")
         return None
-    finally:
-        client.close()
-        log_db().send_info("URL connection closed.")
-
-def set_basic_parameters():
+   
+async def set_basic_parameters():
     log_db().send_info("Starting set_basic_parameters() function.")
-    connection = get_url_connection()
-    if connection is None:
-        log_db().send_error("Failed to get URL connection.")
-        return None
-    log_db().send_debug("URL connection established.")
-
-    client = connection
+    client = get_url_connection()
     info = client.info
     settings = info.settings
     is_posting_image = bool(os.environ.get('POST_IMAGE') == 'True')
     is_to_create_link_to_source = bool(os.environ.get('LINK_TO_SOURCE') == 'True')
     parser_enabled = bool(os.environ.get('POST_IMAGE') == 'True')
     send_post_enabled = bool(os.environ.get('LINK_TO_SOURCE') == 'True')
-
-
-    if settings.estimated_document_count() == 0 and is_posting_image is not None and is_to_create_link_to_source is not None:
+    neural_enabled = bool(os.environ.get('NEURAL_NETWORK_ENABLED') =='True')
+    if await settings.estimated_document_count() == 0 and is_posting_image is not None and is_to_create_link_to_source is not None:
         work_on_time_enabled = bool(os.environ.get('WORK_ON_TIME_ENABLED') == 'True') if (os.environ.get('WORK_ON_TIME_ENABLED') is not None) else False
         if work_on_time_enabled:
             start_time = datetime.datetime.strptime(os.environ.get('START_TIME'), "%H:%M:%S")
             end_time = datetime.datetime.strptime(os.environ.get('END_TIME'), "%H:%M:%S")
-            settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "start_time":start_time, "end_time":end_time, "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled})
+            result = await settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "start_time":start_time, "end_time":end_time, "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled, "neural_enabled":  neural_enabled})
+            log_db().send_info(f"Basic parameters were set successfully. {result}")
+            return result
         else:
-            settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled})
+            result = await settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled, "neural_enabled":  neural_enabled})
+            log_db().send_info(f"Basic parameters were set successfully. {result}")
+            return result

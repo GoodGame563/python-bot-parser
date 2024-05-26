@@ -17,8 +17,8 @@ from logs.loging import log_parser_bot
 
 main_folder = "record"
 
-def get_text_from_filters(text):
-    words = get_key_words()
+async def get_text_from_filters(text):
+    words = await get_key_words()
     if words is None:
         return None
     if len(words) == 0: 
@@ -35,13 +35,13 @@ def get_text_from_filters(text):
 
 
 
-async def get_channel_id(client, link):  # получение ID канала
+async def get_channel_id(client, link): 
     m = await client.get_messages(link, limit=1)
     channel_id = m[0].peer_id.channel_id
     return str(channel_id)
 
 
-def clearify_text(msg):  # очищение текста от символов гиперссылки
+def clearify_text(msg):  
     text = msg.message
     
     find_int_dog = text.find('@')
@@ -57,15 +57,14 @@ def clearify_text(msg):  # очищение текста от символов �
 
 async def get_image(client, msg, channel_name, directory_name):
     if msg.media:
-        data = await client.download_media(msg, f"{main_folder}/{channel_name}/{directory_name}")
-       
+        data = await client.download_media(msg, f"{main_folder}/{channel_name}/{directory_name}")    
         return f"{channel_name}/{msg.id}.{data.split(".")[1]}"
 
 
-def find_last_parsed_date(id:int): 
+async def find_last_parsed_date(id:int): 
     oldest = datetime.datetime.strptime("1970-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")
     temp = oldest
-    oldest = return_data_last_changed_telegram_channel(int(id))
+    oldest = await return_data_last_changed_telegram_channel(int(id))
     if oldest is None:
         return None
     if temp == oldest:
@@ -76,7 +75,7 @@ def find_last_parsed_date(id:int):
 async def parse(client, url):
     err = []  
     channel_id = await get_channel_id(client, url)  
-    oldest = find_last_parsed_date(int(channel_id))
+    oldest = await find_last_parsed_date(int(channel_id))
     if oldest is None: 
         return []
     oldest += relativedelta(seconds=1) 
@@ -85,18 +84,18 @@ async def parse(client, url):
         try:
             directory_name = str(message.id) 
             if message.message:
-                if (get_text_from_filters(message.message)):
-                    create_new_telegram_channel_parsing(channel_id, message.date, clearify_text(message), message.id)
+                if (await get_text_from_filters(message.message)):
+                    await create_new_telegram_channel_parsing(channel_id, message.date, clearify_text(message), message.id)
                 else:
-                    update_date_telegram_channel(channel_id, message.date)
+                    await update_date_telegram_channel(channel_id, message.date)
             if message.media:
-                if(check_post_exist_in_telegram_channel(channel_id, datetime.datetime.strptime(message.date.strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S'))):
+                if(await check_post_exist_in_telegram_channel(channel_id, datetime.datetime.strptime(message.date.strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S'))):
                     url_path = await get_image(client, message, channel_id, directory_name)
-                    if (add_image_to_telegram_channel(channel_id, url_path, datetime.datetime.strptime(message.date.strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S'))):
+                    if (await add_image_to_telegram_channel(channel_id, url_path, datetime.datetime.strptime(message.date.strftime('%Y-%m-%d %H:%M:%S'), '%Y-%m-%d %H:%M:%S'))):
                         #print(os.path.getsize(f"{url_path}"))
                         add_file(url_path.split('/')[1], channel_id, f"{main_folder}/{url_path}")
                 else:
-                    update_date_telegram_channel(channel_id, message.date)
+                    await update_date_telegram_channel(channel_id, message.date)
         except Exception as passing: 
             err.append(passing)
             continue

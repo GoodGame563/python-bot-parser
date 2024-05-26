@@ -28,7 +28,6 @@ def get_file(filename):
     finally:
         responce.close()
         responce.release_conn() 
-    print("Success")
     return byte
 
     #return byte
