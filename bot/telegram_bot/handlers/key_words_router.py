@@ -67,7 +67,7 @@ class ReductWords(StatesGroup):
 
 @admin_key_words_manage_router.message(StateFilter(None), F.text.lower() == "редактирование ключевого слова из фильтра")
 async def reduct_key_words(message: types.Message, state: FSMContext):
-    key_words = get_key_words()
+    key_words = await get_key_words()
     if len(key_words) == 0 or key_words is None:
         await message.answer("Нет ключевых слов для редактирования")
         return
@@ -82,7 +82,7 @@ async def reduct_target_word(message: types.Message, state: FSMContext):
     if message.text == " ":
         await message.answer("Слово фильтрации должно состоять хотя бы из одного слова")
         return
-    key_words = get_key_words()
+    key_words = await get_key_words()
     if message.text.lower() in key_words.values():
         await message.answer("Введите новое слово", reply_markup=types.ReplyKeyboardRemove())
         await state.update_data(word = message.text.lower())

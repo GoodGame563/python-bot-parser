@@ -9,14 +9,21 @@ from logs.loging import log_db
 
 load_dotenv()
 
-url_connection = os.environ.get('DATA_DB_URL')
+url_connection_out = os.environ.get('DATA_DB_URL')
+url_connection_in = os.environ.get('DB_CONTAINER_NAME')
+
 root_user = os.environ.get('DATA_DB_ROOT_USER')
 root_password = os.environ.get('DATA_DB_ROOT_PASS')
-port = os.environ.get('DATA_DB_PORT_DESKTOP')
+
+port_in = os.environ.get('DATA_DB_PORT_CONTAINER')
+port_out = os.environ.get('DATA_DB_PORT_DESKTOP')
+
+is_docker = os.environ.get('POST_IN_DOCKER')
+
 
 
 def get_url_connection():
-    if(url_connection is None):
+    if(url_connection_out is None):
         log_db().send_critical('Could not connect to database, Error: url_connection is none')
         return None
     if(root_user is None):
@@ -25,10 +32,13 @@ def get_url_connection():
     if(root_password is None):
         log_db().send_critical('Could not connect to database, Error: root_password is none')
         return None
-    if(port is None):
+    if(port_in is None):
         log_db().send_critical('Could not connect to database, Error: port is none')
         return None
-    client = motor.motor_asyncio.AsyncIOMotorClient(f"mongodb://{root_user}:{root_password}@{url_connection}:{port}/")
+    if is_docker == 'True':
+        client = motor.motor_asyncio.AsyncIOMotorClient(f"mongodb://{root_user}:{root_password}@{url_connection_in}:{port_in}/")
+    else:
+        client = motor.motor_asyncio.AsyncIOMotorClient(f"mongodb://{root_user}:{root_password}@{url_connection_out}:{port_out}/")
     return client
 
 async def check_exist_database_if_create():

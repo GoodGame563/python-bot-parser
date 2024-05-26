@@ -76,7 +76,7 @@ async def find_last_parsed_date(id:int):
     if oldest is None:
         return None
     if temp == oldest:
-        oldest = datetime.datetime.now() - relativedelta(days=2)  # если сообщений нет, офсет устанавливается на                                                   # три месяца от текущей даты
+        oldest = datetime.datetime.now() - relativedelta(days=1)  # если сообщений нет, офсет устанавливается на                                                   # три месяца от текущей даты
     return oldest
 
 
