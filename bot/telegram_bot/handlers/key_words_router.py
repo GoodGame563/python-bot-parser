@@ -47,7 +47,7 @@ async def add_words(message: types.Message, state: FSMContext):
         return
     await state.update_data(words = message.text.lower().split(" "))
     data = await state.get_data()
-    add_key_words(data['words'])
+    await add_key_words(data['words'])
     await state.clear()
     await message.answer("Ключевые слова добавлены", reply_markup=reply.filter_post_markup)
 
@@ -100,7 +100,7 @@ async def reduct_target_word_new_word(message: types.Message, state: FSMContext)
     if message.text == " ":
         await message.answer("Слово фильтрации должно состоять хотя бы из одного слова")
         return
-    await state.set_data(new_word = message.text().lower())
+    await state.update_data(new_word = message.text.lower())
     data = await state.get_data()
     await state.clear()
     await reduct_key_word(data['word'], data['new_word'])

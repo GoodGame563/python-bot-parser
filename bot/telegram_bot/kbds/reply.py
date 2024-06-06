@@ -10,7 +10,7 @@ main_menu_markup = ReplyKeyboardMarkup(
         ],
         [
             KeyboardButton(text = "Настройки"),
-            KeyboardButton(text = "Дополнительные возможности"),
+            #KeyboardButton(text = "Дополнительные возможности"),
         ],
     ],
     resize_keyboard=True,

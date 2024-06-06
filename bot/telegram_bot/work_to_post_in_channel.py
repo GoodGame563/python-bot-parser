@@ -39,15 +39,16 @@ async def print_post(bot):
                 if mem is not None:
                     for document in mem:  
                         try:
+                            await update_telegram_channel_last_send(channel, document["date"] + relativedelta(seconds=1))
                             id_message = document.get("_id")
                             if settings.get("neural_enabled"):
                                 result = await new_text(document['text'])
-                                document['text'] = result.get("result").replace("##", "") 
-                                text_to = text(document['text'] + (link("Источник", f"{namechannel}/{id_message}") if settings.get("link_to_source") else ""))
+                                document['text'] = str(result.get("result")).replace("##", "").replace("**", "*") 
+                                text_to = document['text'] + text("\n"+(link("Источник", f"{namechannel}/{id_message}") if settings.get("link_to_source") else ""))
                             else:
                                 document['text'] = document['text']+"   "
                                 document['text'] = document["text"][:document["text"].find("@")-1]+document["text"][document["text"].find(" ", document["text"].find("@")):-1]     
-                                text_to = text(bold(document["text"].split("\n")[0])+ "\n" + "\n".join(document["text"].split('\n')[1:]) +"\n" + (link("Источник", f"{namechannel}/{id_message}" if settings.get("link_to_source") else "")))
+                                text_to = text(bold(document["text"].split("\n")[0])+ "\n" + "\n".join(document["text"].split('\n')[1:]) +"\n" + ("\n"+link("Источник", f"{namechannel}/{id_message}" if settings.get("link_to_source") else "")))
                             count = document.get('count_img')
                             if not settings.get("posting_image"):
                                 count = None
@@ -80,10 +81,9 @@ async def print_post(bot):
                                             file = await get_file(document["url"][0])
                                             #print(document["url"][0].split('/')[1])
                                             hs = types.input_file.BufferedInputFile(file= file, filename= document["url"][0].split('/')[1])
-                                            await bot.send_video(int(chat), video=hs, caption=text_to, duration=1000, supports_streaming=True, request_timeout=2000)
+                                            await bot.send_video(int(chat), video=hs, caption=text_to, duration=1000, supports_streaming=True, request_timeout=2000, parse_mode=ParseMode.MARKDOWN)
                             else:
-                                await bot.send_message(int(chat), text_to, parse_mode=ParseMode.MARKDOWN)
-                            await update_telegram_channel_last_send(channel, document["date"] + relativedelta(seconds=1))
+                                await bot.send_message(int(chat), text_to, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
                         except Exception as e:
                             log_admin_bot().send_error(f'Error sending {e}')
                             continue

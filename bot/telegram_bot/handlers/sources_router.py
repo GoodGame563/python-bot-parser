@@ -99,6 +99,8 @@ async def reduct_source(message: types.Message, state: FSMContext):
     telegram_channel =await get_telegramm_channels()
     if telegram_channel is None or len(telegram_channel) == 0:
         await message.answer("Каналов для парсинга не существует")
+        await state.clear()
+        return
     channels_to_str = "".join ([f"- id:{id_channel}  @{telegram_channel[id_channel][0].split("/")[-1]}\n" for id_channel in telegram_channel])
     text = "Каналы используемые для парсинга:\n" + channels_to_str
     await message.answer(text, reply_markup=types.ReplyKeyboardRemove())
