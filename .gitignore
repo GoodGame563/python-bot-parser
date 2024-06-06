@@ -7,7 +7,7 @@ minio/
 *.session
 *.log
 
-
+.idea
 test_*
 
 .VSCodeCounter

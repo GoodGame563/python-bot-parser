@@ -27,6 +27,8 @@ async def get_text_from_filters(text):
     if ad_delete is None or ad_delete == "True":
         if "erid" in text.lower():
             return False
+        if "#реклама" in text.lower():
+            return False
     for id_word in words:
         if words[id_word] in text.lower():
             log_parser_bot().send_debug(f"слово {words[id_word]}")
@@ -43,6 +45,7 @@ async def get_channel_id(client, link):
 
 def clearify_text(msg):  
     text = msg.message
+    print(text)
     
     find_int_dog = text.find('@')
     if find_int_dog != -1:

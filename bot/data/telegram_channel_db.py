@@ -41,16 +41,8 @@ async def delete_telegram_channel(id: int):
 
 async def get_telegram_channel_by_id(id: int):
     log_db().send_info(f"Starting get_telegram_channel_by_id() function for channel ID {id}.")
-
-    connection = get_url_connection()
-    if connection is None:
-        log_db().send_error("Failed to get URL connection.")
-        return None
-
-    log_db().send_debug("URL connection established.")
-
     try:
-        client = connection
+        client = get_url_connection()
         info = client.info
         telegram_channels_collection = info.telegram_channels
 
@@ -70,20 +62,13 @@ async def get_telegram_channel_by_id(id: int):
 async def get_telegram_channels_by_url(url: str):
     log_db().send_info(f"Starting get_telegramm_channels_by_url() function for channel URL {url}.")
 
-    connection = get_url_connection()
-    if connection is None:
-        log_db().send_error("Failed to get URL connection.")
-        return None
-
-    log_db().send_debug("URL connection established.")
-
     try:
-        client = connection
+        client = get_url_connection()
         info = client.info
         telegram_channels_collection = info.telegram_channels
 
         log_db().send_debug(f"Checking if channel with URL {url} exists.")
-        channel = telegram_channels_collection.find_one({"link_channel": url})
+        channel = await telegram_channels_collection.find_one({"link_channel": url})
         
         if channel is None:
             log_db().send_info(f"Telegram channel with URL {url} not found.")
@@ -195,7 +180,7 @@ async def update_link_telegram_channel(id: int, link_new: int):
         log_db().send_debug(f"Updating last_updated for channel with ID {id}.")
         await telegram_channels_collection.update_one(
             {"id": int(id)},
-            {"$set": {"link": link_new}}
+            {"$set": {"link_channel": link_new}}
         )
         
     except Exception as e:

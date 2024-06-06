@@ -44,6 +44,9 @@ def get_url_connection():
 async def check_exist_database_if_create():
     log_db().send_info("Starting check_exist_database_if_create() function.")
 
+    needs_paser = os.environ.get("NEED_SITES_CUSTOM_PARSER") == 'True'
+    need_special_words = os.environ.get('NEED_SPECIAL_WORDS') == 'True'
+
     telegram_channels_collection = list()
     
     default_ids = os.environ.get('DEFAULT_VALUES_TELEGRAMM_CHANNELS_Id')
@@ -70,17 +73,42 @@ async def check_exist_database_if_create():
             "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"),
             "last_send": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
         })
-    
-    connection = get_url_connection()
-    if connection is None:
-        log_db().send_error("Failed to get URL connection.")
-        return None
+    sites_collection = list()
+    special_words = list()
 
-    client = connection
+    if needs_paser:
+        sites_url = os.environ.get('DEFAULT_VALUES_SITES') 
+        if sites_url is not None:
+            sites_url = sites_url.replace(" ","").split(",")
+        words = os.environ.get('DEFAULT_SPECIAL_WORDS') 
+        if  words is not None:
+            words =  words.replace(" ","").split(",")
+        for site in sites_url:
+            sites_collection.append({
+                "url": site,
+                "last_updated": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z"),
+                "last_send": datetime.datetime.strptime("1970-01-01 00:00:00+00:00", "%Y-%m-%d %H:%M:%S%z")
+            })
+        for word in words:
+            special_words.append({
+                "word": word
+            })   
+
+
+    client = get_url_connection()
     info = client.info
     telegram_channels_table = info.telegram_channels
 
     try:
+        if needs_paser:
+            url_sites = info.url_sites
+            if await url_sites.estimated_document_count() != 0:
+                log_db().send_info("Url sites already exist in the database.")
+            else:
+                await url_sites.insert_many(sites_collection)
+                if need_special_words:
+                    log_db().send_debug("Inserting default special words into the database.")
+                    await info.special_words.insert_many(special_words)
         if await telegram_channels_table.estimated_document_count() != 0:
             log_db().send_info("Telegram channels already exist in the database.")
             return True
@@ -119,15 +147,17 @@ async def set_basic_parameters():
     parser_enabled = bool(os.environ.get('POST_IMAGE') == 'True')
     send_post_enabled = bool(os.environ.get('LINK_TO_SOURCE') == 'True')
     neural_enabled = bool(os.environ.get('NEURAL_NETWORK_ENABLED') =='True')
+    need_paser = os.environ.get("NEED_SITES_CUSTOM_PARSER") == 'True'
+    need_special_words = os.environ.get('NEED_SPECIAL_WORDS') == 'True'
     if await settings.estimated_document_count() == 0 and is_posting_image is not None and is_to_create_link_to_source is not None:
         work_on_time_enabled = bool(os.environ.get('WORK_ON_TIME_ENABLED') == 'True') if (os.environ.get('WORK_ON_TIME_ENABLED') is not None) else False
         if work_on_time_enabled:
             start_time = datetime.datetime.strptime(os.environ.get('START_TIME'), "%H:%M:%S")
             end_time = datetime.datetime.strptime(os.environ.get('END_TIME'), "%H:%M:%S")
-            result = await settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "start_time":start_time, "end_time":end_time, "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled, "neural_enabled":  neural_enabled})
+            result = await settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "start_time":start_time, "end_time":end_time, "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled, "neural_enabled":  neural_enabled, "web_paser": need_paser, "need_special_words": need_special_words})
             log_db().send_info(f"Basic parameters were set successfully. {result}")
             return result
         else:
-            result = await settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled, "neural_enabled":  neural_enabled})
+            result = await settings.insert_one({"_id":1,"posting_image": bool(is_posting_image), "link_to_source":bool(is_to_create_link_to_source), "work_on_time": bool(work_on_time_enabled),"parser": parser_enabled, "send_post": send_post_enabled, "neural_enabled":  neural_enabled, "web_paser": need_paser, "need_special_words": need_special_words})
             log_db().send_info(f"Basic parameters were set successfully. {result}")
             return result
