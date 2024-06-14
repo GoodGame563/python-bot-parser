@@ -32,6 +32,13 @@ else:
         secure=False
     )
 
+async def check_backet_exists():
+    if not await client.bucket_exists(bucket_name):
+        print("create bucket")
+        await client.make_bucket(bucket_name)
+    else:
+        print("bucket exists")
+
 
 async def get_file(filename):
     try:

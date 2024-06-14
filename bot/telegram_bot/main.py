@@ -22,6 +22,7 @@ from handlers.settings_router import admin_settings_manage_router
 from handlers.user_group import user_group_router
 from handlers.admin_router import admin_router
 from data.base_connection_db import *
+from data.minio_function import check_backet_exists
 
 
 load_dotenv()
@@ -55,6 +56,7 @@ async def main():
             await asyncio.sleep(60)
             return
         break
+    await check_backet_exists()
     await set_basic_parameters()
     await get_all_settings()
     task1 = asyncio.create_task(dp.start_polling(bot))
