@@ -19,7 +19,7 @@ from logs.loging import log_admin_bot
 from handlers.sources_router import admin_source_manage_router
 from handlers.key_words_router import admin_key_words_manage_router
 from handlers.settings_router import admin_settings_manage_router
-from handlers.user_group import user_group_router
+from handlers.user_group import user_group_router, create_admin
 from handlers.admin_router import admin_router
 from data.base_connection_db import *
 from data.minio_function import check_backet_exists
@@ -59,6 +59,7 @@ async def main():
     await check_backet_exists()
     await set_basic_parameters()
     await get_all_settings()
+    await create_admin(bot)
     task1 = asyncio.create_task(dp.start_polling(bot))
     task2 = asyncio.create_task(start_parsing())
     task3 = asyncio.create_task(print_post(bot))
