@@ -24,6 +24,14 @@ async def get_admins(message: types.Message, bot: Bot):
     if message.from_user.id in admins_list:
         await message.delete()
 
+async def create_admin(bot: Bot):
+    admins_list = await bot.get_chat_administrators(-1002022330460)
+    admins_list = [
+        member.user.id
+        for member in admins_list
+        if member.status == "creator" or member.status == "administrator"
+    ]
+    bot.my_admins_list = admins_list
 
 def clean_text(text: str):
     return text.translate(str.maketrans("", "", punctuation))
