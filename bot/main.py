@@ -1,22 +1,24 @@
 import asyncio
+from os import environ
+
 
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart, StateFilter
 
 
 
-from work_to_parse import start_parsing
-from kbds import reply
+from telegram_bot.work_to_parse import start_parsing
+from telegram_bot.kbds import reply
 from data.telegram_channel_db import telegram_db
 from data.settings_db import *
-from work_to_post_in_channel import print_post
+from telegram_bot.work_to_post_in_channel import print_post
 from logs.loging import log_admin_bot
-from handlers.sources_router import admin_source_manage_router
-from handlers.key_words_router import admin_key_words_manage_router
-from handlers.settings_router import admin_settings_manage_router
-from handlers.user_group import user_group_router, create_admin
-from handlers.admin_router import admin_router
-from handlers.channels_router import admin_channels_manage_router
+from telegram_bot.handlers.sources_router import admin_source_manage_router
+from telegram_bot.handlers.key_words_router import admin_key_words_manage_router
+from telegram_bot.handlers.settings_router import admin_settings_manage_router
+from telegram_bot.handlers.user_group import user_group_router, create_admin
+from telegram_bot.handlers.admin_router import admin_router
+from telegram_bot.handlers.channels_router import admin_channels_manage_router
 from data.channels_db import check_channels_exist, return_channels
 from data.base_connection_db import *
 from data.minio_function import check_backet_exists
@@ -26,9 +28,9 @@ from web_parser.rss_parser import rss_parser
 page  = 0
 step = 15
 
-bot_token = os.environ.get('BOT_TOKEN')
+bot_token = environ.get('BOT_TOKEN')
 
-bot_token = os.environ.get('BOT_TOKEN')
+bot_token = environ.get('BOT_TOKEN')
 if bot_token is None or bot_token == '':
     log_admin_bot().send_critical('Bot token missing')
     assert()
@@ -36,7 +38,7 @@ else:
     log_admin_bot().send_info('Bot token is set')
 
 
-admin_chat_id = os.environ.get('ADMIN_CHAT_ID')
+admin_chat_id = environ.get('ADMIN_CHAT_ID')
 if admin_chat_id is None or admin_chat_id == '':
     log_admin_bot().send_critical('Admin chat is missing')
     assert()
@@ -60,7 +62,7 @@ async def send_message(chat_id, message):
 
 async def check_minio():
     while True:
-        minio_bucket_name = os.environ.get('MINIO_BUCKET_NAME')
+        minio_bucket_name = environ.get('MINIO_BUCKET_NAME')
         if minio_bucket_name is None or minio_bucket_name == '':
             log_admin_bot().send_critical('Minio bucket name not found')
             await asyncio.sleep(60)

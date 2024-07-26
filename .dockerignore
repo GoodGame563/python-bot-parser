@@ -1,0 +1,17 @@
+.git
+.gitignore
+.env-clear
+docker-compose.yml
+Dockerfile
+.dockerignore
+test
+record/
+mongo/
+__pycache__/
+minio/
+*.session
+*.log
+.idea
+test_*
+.VSCodeCounter
+.env
