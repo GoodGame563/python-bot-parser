@@ -5,12 +5,27 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 main_menu_markup = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text = "Управление источниками"),
             KeyboardButton(text = "Фильтрация постов источника"),
         ],
         [
             KeyboardButton(text = "Настройки"),
-            #KeyboardButton(text = "Дополнительные возможности"),
+        ],
+        [
+            KeyboardButton(text = "Каналы"),
+        ]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder="Что вас интересует?"
+)
+
+telegram_menu_markup = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text = "Управление каналами"),
+            KeyboardButton(text = "Управление источниками"),
+        ],
+        [
+           # KeyboardButton(text = "Общие настройки"),
         ],
     ],
     resize_keyboard=True,
@@ -38,6 +53,61 @@ manage_sources_markup = ReplyKeyboardMarkup(
     input_field_placeholder="Что вас интересует?"
 )
 
+manage_sites_markup = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text = "Добавить сайт для парсинга"),
+        ],
+        [
+           # KeyboardButton(text ="Редактировать источник для парсинга"),
+        ],    
+        [ 
+            KeyboardButton(text ="Удаление сайта для парсинга")
+        ],
+        [
+            KeyboardButton(text = "Назад"),
+        ]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder="Что вас интересует?"
+)
+manage_channels_markup = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text = "Добавить канал"),
+        ],
+        [
+            #KeyboardButton(text ="Редактировать канал"),
+        ],    
+        [ 
+            KeyboardButton(text ="Удаление канала")
+        ],
+        [
+            KeyboardButton(text = "Назад"),
+        ]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder="Что вас интересует?"
+)
+
+sites_or_channels_markup = ReplyKeyboardMarkup(
+    keyboard=[
+        [
+            KeyboardButton(text = "Сайты"),
+        ],
+        [
+            #KeyboardButton(text ="Редактировать канал"),
+        ],    
+        [ 
+            KeyboardButton(text ="Каналы")
+        ],
+        [
+            KeyboardButton(text = "Назад"),
+        ]
+    ],
+    resize_keyboard=True,
+    input_field_placeholder="Что вас интересует?"
+)
 
 
 time_markup = ReplyKeyboardMarkup(

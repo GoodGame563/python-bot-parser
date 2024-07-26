@@ -16,14 +16,10 @@ admin_router.message.filter(ChatTypeFilter(["private"]), IsAdmin())
 @admin_router.message(StateFilter(None), CommandStart())
 async def send_welcome(message: types.Message):
     log_admin_bot().send_debug(f"Received /start command from user: {message.from_user.id}")
-    await message.answer("Привет, я бот для настройки бота-агрегатора новостей.", reply_markup=reply.main_menu_markup)
+    await message.answer("Привет, я бот для настройки бота-агрегатора новостей.", reply_markup=reply.telegram_menu_markup)
 
 @admin_router.message(StateFilter(None), F.text.lower() == "назад")
 async def source(message: types.Message):
     log_admin_bot().send_debug(f"Received 'back' command from user: {message.from_user.id}")
-    await message.answer("назад", reply_markup=reply.main_menu_markup)
+    await message.answer("назад", reply_markup=reply.telegram_menu_markup)
 
-@admin_router.message(StateFilter(None), F.text.lower() == "дополнительные возможности")
-async def source(message: types.Message):
-    log_admin_bot().send_debug(f"Received 'дополнительные возможности' command from user: {message.from_user.id}")
-    await message.answer("Перед вами представлен ряд дополнительных возможностей который вы можете выключить в данном парсере", reply_markup=reply.dop_vozmoc_markup)

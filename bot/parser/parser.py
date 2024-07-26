@@ -18,12 +18,14 @@ if api_id is None and api_hash is None:
 else:
     log.send_info("script started") 
 
-async def parse_channel(url_list:list ):
-    async with TelegramClient('../session/new', api_id, api_hash, device_model='Samsung Galaxy S20 FE, running Android 13', system_version='4.16.30-vxCUSTOM', app_version='1.0.1') as tc:
-        for url in url_list:
+async def parse_channel(channel_dict:dict, channel_name:str ):
+    async with TelegramClient('../session/new', api_id, api_hash, device_model='Samsung Galaxy S21, running Android 15', system_version='4.16.30-vxCUSTOM', app_version='1.0.2') as tc:
+        for id in channel_dict:
             try:
-                log.send_info(f"parsing channel {url}")
-                mem = await parse(tc, url)
+                log.send_info(f"parsing channel {channel_dict[id][0]}")
+                mem = []
+                #print(channel_name, tc, channel_dict[id][0], channel_dict[id][3], channel_dict[id][4])
+                mem = await parse(channel_name, tc, channel_dict[id][0], channel_dict[id][3], channel_dict[id][4])
                 for er in mem:
                     log.send_debug(f"{er}")
                 log.send_info("parsing done successfully")

@@ -1,72 +1,201 @@
 from data.base_connection_db import get_url_connection
 
 from logs.loging import log_db
+from bson import ObjectId
 
-async def get_key_words():
-    log_db().send_info("Starting get_key_words() function.")
+class words_db:
+    def __init__(self, table: str, id_channel: int):
+        self.table = table
+        self.id = id_channel
+    async def get_key_words(self):
+        log_db().send_info("Starting get_key_words() function.")
 
-    connection = get_url_connection()
-    if connection is None:
-        log_db().send_error("Failed to get URL connection.")
-        return None
+        connection = get_url_connection()
+        key_words = []
+        try:
+            client = connection
+            info = client[self.table]
+            key_words_collection = await info.telegram_channels.find_one({"id": int(self.id)})
+            key_words_collection = key_words_collection['key_words']
+            for word in key_words_collection:
+                key_words.append(word)
+            
+            log_db().send_info("Key words successfully fetched.")
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
+        return key_words
     
-    log_db().send_debug("URL connection established.")
+    async def get_del_words(self):
+        log_db().send_info("Starting get_del_words() function.")
+
+        connection = get_url_connection()
+        key_words = []
+        try:
+            client = connection
+            info = client[self.table]
+            key_words_collection = await info.telegram_channels.find_one({"id": int(self.id)})
+            key_words_collection = key_words_collection['bad_words']
+            for word in key_words_collection:
+                key_words.append(word)
+            
+            log_db().send_info("Key words successfully fetched.")
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
+        return key_words
+
+    async def add_key_words(self, words: list):
+        log_db().send_info("Starting add_key_words() function.")
+        try:
+            client = get_url_connection()
+            info = client[self.table]
+            key_words_collection = await info.telegram_channels.find_one({"id": int(self.id)})
+            key_words_collection = key_words_collection['key_words']
+
+            await info.telegram_channels.find_one_and_update({"id": int(self.id)}, {"$set": {"key_words": key_words_collection + words}})  
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
+        
+    async def add_bad_words(self, words: list):
+        log_db().send_info("Starting add_key_words() function.")
+        try:
+            client = get_url_connection()
+            info = client[self.table]
+            key_words_collection = await info.telegram_channels.find_one({"id": int(self.id)})
+            key_words_collection = key_words_collection['bad_words']
+
+            await info.telegram_channels.find_one_and_update({"id": int(self.id)}, {"$set": {"bad_words": key_words_collection + words}})  
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
+
+    async def delete_key_words(self, words:list):
+        log_db().send_info("Starting delete_key_words() function.")
+        try:
+            client  = get_url_connection()
+            info = client[self.table]
+            key_words_collection = await info.telegram_channels.find_one({"id": int(self.id)})
+            key_words_collection = key_words_collection['key_words']
+            for word in words:
+                while key_words_collection.count(word) > 0:
+                    key_words_collection.remove(word)
+            await info.telegram_channels.find_one_and_update({"id": int(self.id)}, {"$set": {"key_words": key_words_collection}})  
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
+        
+    async def delete_bad_words(self, words:list):
+        log_db().send_info("Starting delete_key_words() function.")
+        try:
+            client  = get_url_connection()
+            info = client[self.table]
+            key_words_collection = await info.telegram_channels.find_one({"id": int(self.id)})
+            key_words_collection = key_words_collection['bad_words']
+            for word in words:
+                while key_words_collection.count(word) > 0:
+                    key_words_collection.remove(word)
+            await info.telegram_channels.find_one_and_update({"id": int(self.id)}, {"$set": {"bad_words": key_words_collection}})  
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
+
+
+class sites_words_db:
+    def __init__(self, table: str, id_channel: str):
+        self.table = table
+        self.id = id_channel
+    async def get_key_words(self):
+        log_db().send_info("Starting get_key_words() function.")
+
+        connection = get_url_connection()
+        key_words = []
+        try:
+            client = connection
+            info = client[self.table]
+            key_words_collection = await info.url_sites.find_one({"_id": ObjectId(self.id)})
+            key_words_collection = key_words_collection['key_words']
+            for word in key_words_collection:
+                key_words.append(word)
+            
+            log_db().send_info("Key words successfully fetched.")
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
+        return key_words
     
-    try:
-        client = connection
-        info = client.info
-        key_words_collection = info.key_words
-        key_words = {}
+    async def get_del_words(self):
+        log_db().send_info("Starting get_del_words() function.")
+
+        connection = get_url_connection()
+        key_words = []
+        try:
+            client = connection
+            info = client[self.table]
+            key_words_collection = await info.url_sites.find_one({"_id": ObjectId(self.id)})
+            key_words_collection = key_words_collection['bad_words']
+            for word in key_words_collection:
+                key_words.append(word)
+            
+            log_db().send_info("Key words successfully fetched.")
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
+        return key_words
+
+    async def add_key_words(self, words: list):
+        log_db().send_info("Starting add_key_words() function.")
+        try:
+            client = get_url_connection()
+            info = client[self.table]
+            key_words_collection = await info.url_sites.find_one({"_id": ObjectId(self.id)})
+            key_words_collection = key_words_collection['key_words']
+
+            await info.url_sites.find_one_and_update({"_id": ObjectId(self.id)}, {"$set": {"key_words": key_words_collection + words}})  
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
         
-        log_db().send_debug("Fetching key words from collection.")
-        async for word in key_words_collection.find():
-            key_words[word['_id']] = word['word']
+    async def add_bad_words(self, words: list):
+        log_db().send_info("Starting add_key_words() function.")
+        try:
+            client = get_url_connection()
+            info = client[self.table]
+            key_words_collection = await info.url_sites.find_one({"_id": ObjectId(self.id)})
+            key_words_collection = key_words_collection['bad_words']
+
+            await info.url_sites.find_one_and_update({"_id": ObjectId(self.id)}, {"$set": {"bad_words": key_words_collection + words}})  
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
+
+    async def delete_key_words(self, words:list):
+        log_db().send_info("Starting delete_key_words() function.")
+        try:
+            client  = get_url_connection()
+            info = client[self.table]
+            key_words_collection = await info.url_sites.find_one({"_id": ObjectId(self.id)})
+            key_words_collection = key_words_collection['key_words']
+            for word in words:
+                while key_words_collection.count(word) > 0:
+                    key_words_collection.remove(word)
+            await info.url_sites.find_one_and_update({"_id": ObjectId(self.id)}, {"$set": {"key_words": key_words_collection}})  
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
         
-        log_db().send_info("Key words successfully fetched.")
-    except Exception as e:
-        log_db().send_critical(f"An error occurred: {str(e)}")
-        return None
-    return key_words
-
-async def add_key_words(words: list):
-    log_db().send_info("Starting add_key_words() function.")
-    try:
-        client = get_url_connection()
-        info = client.info
-        key_words_collection = info.key_words     
-        words_collection = list()
-        for word in words:
-            if await key_words_collection.count_documents({"word": str(word)}) == 0:
-                words_collection.append({
-                    "word": str(word)
-                })
-        if len(words_collection) != 0:
-            await key_words_collection.insert_many(words_collection)
-    except Exception as e:
-        log_db().send_critical(f"An error occurred: {str(e)}")
-        return None
-
-async def reduct_key_word(old_word:str, new_word:str):
-    log_db().send_info("Starting reduct_key_word() function.")
-    try:
-        client  = get_url_connection()
-        info = client.info
-        key_words_collection = info.key_words     
-        if await key_words_collection.count_documents({"word": str(old_word)}) == 1:
-            await key_words_collection.update_one({"word": str(old_word)},{'$set': {"word": str(new_word)}})
-    except Exception as e:
-        log_db().send_critical(f"An error occurred: {str(e)}")
-        return None
-
-async def delete_key_words(words:list):
-    log_db().send_info("Starting delete_key_words() function.")
-    try:
-        client  = get_url_connection()
-        info = client.info
-        key_words_collection = info.key_words     
-        for word in words:
-            if await key_words_collection.count_documents({"word": str(word)}) != 0:
-                await key_words_collection.delete_one({"word": str(word)})   
-    except Exception as e:
-        log_db().send_critical(f"An error occurred: {str(e)}")
-        return None
+    async def delete_bad_words(self, words:list):
+        log_db().send_info("Starting delete_key_words() function.")
+        try:
+            client  = get_url_connection()
+            info = client[self.table]
+            key_words_collection = await info.url_sites.find_one({"_id": ObjectId(self.id)})
+            key_words_collection = key_words_collection['bad_words']
+            for word in words:
+                while key_words_collection.count(word) > 0:
+                    key_words_collection.remove(word)
+            await info.url_sites.find_one_and_update({"_id": ObjectId(self.id)}, {"$set": {"bad_words": key_words_collection}})  
+        except Exception as e:
+            log_db().send_critical(f"An error occurred: {str(e)}")
+            return None
