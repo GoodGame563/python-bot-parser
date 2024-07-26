@@ -33,6 +33,11 @@ services:
             - ./bot/session:/app/session
         networks:
             - basic_network
+        depends_on:
+            minio1:
+                condition: service_healthy
+            mongoDB:
+                condition: service_healthy
 
     minio1:
         <<: *minio-common
