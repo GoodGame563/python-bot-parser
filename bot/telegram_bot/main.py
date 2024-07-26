@@ -1,9 +1,5 @@
-import asyncio 
-import os
-import sys
+import asyncio
 
-
-sys.path.append(os.path.join(os.getcwd(), '..'))
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart, StateFilter
 
@@ -11,7 +7,6 @@ from aiogram.filters import CommandStart, StateFilter
 
 from work_to_parse import start_parsing
 from kbds import reply
-from dotenv import load_dotenv
 from data.telegram_channel_db import telegram_db
 from data.settings_db import *
 from work_to_post_in_channel import print_post
@@ -28,7 +23,6 @@ from data.minio_function import check_backet_exists
 from web_parser.rss_parser import rss_parser
 
 
-load_dotenv()
 page  = 0
 step = 15
 
@@ -92,25 +86,18 @@ async def check_all_for_work():
     print("All done")
     
 
-async def main():
+async def _main() -> None:
     await check_all_for_work()
     task1 = asyncio.create_task(dp.start_polling(bot))
-    task2 = asyncio.create_task(start_parsing())
+    # task2 = asyncio.create_task(start_parsing())
     task3 = asyncio.create_task(print_post(bot))
     task4 = asyncio.create_task(rss_parser())
     await create_admin(bot)
     log_admin_bot().send_info("bot started")
     print("Bot started")
-    '''
 
-    
-    
-    
-    
-    '''
-    #await asyncio.gather(task1, task2, task3)
-    await asyncio.gather(task1, task2, task3, task4)
+    await asyncio.gather(task1, task3, task4)
 
-    
 
-asyncio.run(main()) 
+if __name__ == "__main__":
+    asyncio.run(_main)

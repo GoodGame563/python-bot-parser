@@ -2,10 +2,6 @@ version: '3.8'
 networks:
     basic_network:
         driver: bridge
-    mongo_network:
-        driver: bridge
-    minio_net:
-        driver: bridge
 
 x-minio-common: &minio-common
     image: quay.io/minio/minio:RELEASE.2024-05-10T01-41-38Z
@@ -68,6 +64,20 @@ services:
             - ./bot/data/mongo/backup:/backup
         networks:
             - basic_network
+        healthcheck:
+            test:
+                [
+                "CMD",
+                "mongo",
+                "--quiet",
+                "127.0.0.1/test",
+                "--eval",
+                "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",
+                ]
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 40s
 
 volumes:
     mongodb_data_container:
