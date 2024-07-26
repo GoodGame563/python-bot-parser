@@ -11,7 +11,7 @@ from handlers.filters import ChatTypeFilter, IsAdmin
 
 admin_key_words_manage_router = Router()
 admin_key_words_manage_router.message.filter(ChatTypeFilter(["private"]), IsAdmin())
-
+'''
 
 @admin_key_words_manage_router.message(StateFilter(None), F.text.lower() == "фильтрация постов источника")
 async def filter_key_words(message: types.Message):
@@ -143,3 +143,4 @@ async def delete_key_word(message: types.Message, state: FSMContext):
 @admin_key_words_manage_router.message(StateFilter(DeleteWords.words))
 async def delete_key_word1(message: types.Message, state: FSMContext):
     await message.answer("Вы ввели не допустимые данные")
+'''
