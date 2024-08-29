@@ -21,7 +21,7 @@ services:
     bot:
         container_name: parse-bot
         restart: unless-stopped
-        build: /bot
+        build: ./bot
         env_file:
             - .env
         environment:
