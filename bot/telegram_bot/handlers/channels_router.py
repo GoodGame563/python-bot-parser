@@ -470,6 +470,9 @@ async def add_channel1(message: types.Message, state: FSMContext):
     
 @admin_channels_manage_router.message(StateFilter(AddChannel.id), F.text.replace("-","").isdigit())
 async def source(message: types.Message, state: FSMContext):
+    if (int(message.text) * -1 < 0):
+        await message.answer("В id должен присутсоваать минус")
+        return 
     await state.update_data(id = message.text.lower())
     await state.set_state(AddChannel.name)
     await message.answer("Введите название канала", reply_markup= ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text ="/отмена"),] ],resize_keyboard=True))
@@ -490,7 +493,20 @@ async def delete_channel1(message: types.Message, state: FSMContext):
 
 @admin_channels_manage_router.message(StateFilter(DeleteChannel.id), F.text)
 async def source(message: types.Message, state: FSMContext):
-    await delete_channel(message.text.lower())
+    is_minus = False
+    text = message.text
+    if text[0] == "-":
+        text = text[1:]
+        is_minus = True
+    if not text.isdigit():
+        await message.answer("Введите id канала")
+        return
+    if is_minus:
+        text = "-" + text
+    result = await delete_channel(text.lower())
+    if not result:
+        await message.answer("Введите правильный id канала")
+        return
     await state.clear()
     await message.answer("Успешно", reply_markup=reply.manage_channels_markup)
 

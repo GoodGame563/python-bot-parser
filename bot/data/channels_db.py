@@ -75,13 +75,16 @@ async def add_channel(id:str, name:str):
 
 async def delete_channel(id):
     try:
-        client  = get_url_connection()
+        client = get_url_connection()
         info = client.info
         channels = info.channels
-        await channels.delete_one({
+        result = await channels.delete_one({
             "id": str(id)
         })
+        if result.deleted_count == 0:
+            return False
         await client.drop_database(str(id))
+        return True
     except Exception:
         print("error")
     

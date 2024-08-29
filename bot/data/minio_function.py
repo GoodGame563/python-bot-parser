@@ -2,6 +2,7 @@ from miniopy_async import Minio
 from dotenv import load_dotenv
 import os
 import aiohttp
+import asyncio 
 load_dotenv()
 
 minio_container=os.environ.get('MINIO_CONTAINER_NAME')
@@ -48,6 +49,14 @@ async def get_file(filename):
     finally:
         responce.close()
     return byte
+
+async def check_file_size(filename) -> bool:
+    try:
+        size = await client.stat_object(bucket_name, f"{filename}")
+        return size.size < 1024 * 1024 * 50
+    except Exception as e:
+        print(f"Ошибка при получении размера файла {e}")
+        return False
 
 async def add_file(filename, id_channel, blob):
     if not await client.bucket_exists(bucket_name):

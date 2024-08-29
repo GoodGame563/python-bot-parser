@@ -2,10 +2,7 @@ version: '3.8'
 networks:
     basic_network:
         driver: bridge
-    mongo_network:
-        driver: bridge
-    minio_net:
-        driver: bridge
+
 
 x-minio-common: &minio-common
     image: quay.io/minio/minio:RELEASE.2024-05-10T01-41-38Z
@@ -33,10 +30,12 @@ services:
             - ./bot/session:/app/session
         networks:
             - basic_network
+        entrypoint: bash -c "sleep 10 && python3 /app/telegram_bot/main.py"
 
     minio1:
         <<: *minio-common
         hostname: minio1
+        restart: unless-stopped
         container_name: ${MINIO_CONTAINER_NAME}
         volumes:
             - type: bind
@@ -61,6 +60,20 @@ services:
         volumes:
             - ./bot/data/mongo/mongodb_data_container:/data/db
             - ./bot/data/mongo/backup:/backup
+        networks:
+            - basic_network
+    browser:
+        restart: unless-stopped
+        container_name: 
+            browser
+        hostname: 
+            browser
+        image: 
+            selenium/standalone-chrome:128.0
+        ports:
+            - "4444:4444"
+        volumes:
+            - /dev/shm:/dev/shm
         networks:
             - basic_network
 

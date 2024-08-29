@@ -1,19 +1,18 @@
 import asyncio
 import os
-import sys, pytz
+import sys
 
 sys.path.append(os.path.join(os.getcwd(), '..'))
 
 from data.channels_db import return_channels
 from data.settings_db import *
 from data.sites_db import site_db
-from bson import ObjectId
 from dateutil import parser
 from pprint import pprint
 from datetime import datetime
-import requests
 import aiohttp
 from bs4 import BeautifulSoup
+
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -21,8 +20,14 @@ from selenium.webdriver.common.by import By
 from dateutil.relativedelta import relativedelta  
 from data.settings_db import *
 from tqdm import tqdm
+is_docker = os.environ.get('POST_IN_DOCKER')
 
+hub_url = ""
 
+if is_docker == 'True':
+    hub_url = 'http://browser:4444/wd/hub'
+else:
+    hub_url = 'http://localhost:4444/wd/hub'
 
 async def check_new_update(url, date: datetime):
     async with aiohttp.ClientSession() as session:
@@ -60,8 +65,9 @@ async def check_new_update(url, date: datetime):
                                 if date_obj > date:
                                     list_items.append(item)
                 else: 
-                    #print(f"error {url}")
-                    driver = webdriver.Chrome()
+                    print(f"error {url}")
+                    chrome_options = webdriver.ChromeOptions()
+                    driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
                     driver.get(url)
                     WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.TAG_NAME, 'body')))
@@ -94,10 +100,49 @@ async def check_new_update(url, date: datetime):
                                 date_obj = parser.parse(item.pubdate.contents[0], ignoretz = True) - relativedelta(hours=int(str(item.pubdate.contents[0]).split('+')[1][:2]))
                                 if date_obj > date:
                                     list_items.append(item)
+                    driver.quit()
             return list_items
         except Exception as e:
-            print(f"Error while checking new updates: {e}")
-            return []
+            try:
+                chrome_options = webdriver.ChromeOptions()
+                driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
+                driver.get(url)
+                WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+                text = str(text).replace('&lt;', '<').replace('&gt;', '>')
+                soup = BeautifulSoup(text, 'html.parser')   
+                date_soup = soup.find('item')
+                if date_soup is None:   
+                    date_soup = soup.find('url')
+                    if date_soup.find('pubdate') is not None:
+                        date_html = date_soup.pubdate.contents[0]   
+                        date_obj = parser.parse(date_html, ignoretz = True)  
+                        if date_obj > date:
+                            for item in soup.findAll('url'):
+                                date_obj = parser.parse(item.pubdate.contents[0], ignoretz = True) - relativedelta(hours=int(str(item.pubdate.contents[0]).split('+')[1][:2]))
+                                if date_obj > date:
+                                    list_items.append(item)
+                    if date_soup.find('lastmod') is not None:
+                        date_html = date_soup.lastmod.contents[0]
+                        date_obj = parser.parse(date_html, ignoretz = True)
+                        if date_obj > date:
+                            for item in soup.findAll('url'):
+                                date_obj = parser.parse(item.lastmod.contents[0], ignoretz = True) - relativedelta(hours=int(str(item.lastmod.contents[0]).split('+')[1][:2]))
+                                if date_obj > date:
+                                    list_items.append(item)    
+                else:
+                    date_html = date_soup.pubdate.contents[0]
+                    date_obj = parser.parse(date_html, ignoretz = True)
+                    if date_obj > date:
+                        for item in soup.findAll('item'):
+                            date_obj = parser.parse(item.pubdate.contents[0], ignoretz = True) - relativedelta(hours=int(str(item.pubdate.contents[0]).split('+')[1][:2]))
+                            if date_obj > date:
+                                list_items.append(item)
+                driver.quit()
+            except Exception as e:
+                print(f"Error: {e}")
+            return list_items
                     
 
 
@@ -107,6 +152,7 @@ async def add_text_from_site(url:str, channel: str, items: list):
     key_words = sites['key_words']
     bad_words = sites['bad_words']
     print(f"\n{url}\n")
+    #print(items)
     items = tqdm(items)
     for item in items:
         soup_date = BeautifulSoup(str(item), 'html.parser')
@@ -121,63 +167,80 @@ async def add_text_from_site(url:str, channel: str, items: list):
             link = item.loc.contents[0]
         else:
             link = str(item).split('<link/>')[1].split('\n')[0].split(' ')[0].split('<')[0]
-        async with aiohttp.ClientSession() as session:
-            response = await session.get(link)
-            #print(url)
-            #print(response.status)
-            text = ""
-            if response.ok:
-                text = await response.text()
-            elif response.status == 400 or response.status == 403:
-                repit = True
-                count_try = 0
-                while repit:
-                    try:
-                        count_try += 1
-                        driver = webdriver.Chrome()
-                        driver.get(link)
-                        WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.TAG_NAME, 'body')))
-                        text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
-                        driver.quit()
-                        repit = False
-                    except:
-                        print("Repit try")
-                        repit = True
-                        if count_try == 5:
+        
+        text = ""
+        try:
+            async with aiohttp.ClientSession() as session:
+                response = await session.get(link)
+                if response.ok:
+                    text = await response.text()
+                elif response.status == 400 or response.status == 403:
+                    repit = True
+                    count_try = 0
+                    while repit:
+                        try:
+                            count_try += 1
+                            chrome_options = webdriver.ChromeOptions()
+                            driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
+                            driver.get(link)
+                            WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                            text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+                            driver.quit()
                             repit = False
-            else:
-                print(f"not work {link}")
-                continue
-            
-            soup = BeautifulSoup(text, 'html.parser')
-            invalid_tags = ['script', 'form', 'label', 'img', 'svg', 'i', 'link', 'button', 'input', 'textarea', 'use', 'picture',]
-            for tag in invalid_tags:
-                for match in soup.findAll(tag):
-                    match.replaceWithChildren()
+                        except:
+                            print("Repit try")
+                            repit = True
+                            if count_try == 5:
+                                repit = False
+                else:
+                    print(f"not work {link}")
+                    continue
+        except:
+            repit = True
             count_try = 0
-            final_text = ""
-            while count_try < 3:
+            while repit:
                 try:
-                    #print(f"try {count_try}")
-                    async with aiohttp.ClientSession() as session:
-                        response = await session.get('https://goodgame563.pythonanywhere.com/take_text_from_request', 
-                                                     json={"request": soup.text.replace('\n', ' ').replace('  ', ' ')}, 
-                                                     timeout = 100)
-                        #print(response)
-                        if response.ok:
-                            final_text = await response.json()
-                            final_text = final_text['result']
-                            break
-                except:
-                    print("Failed to get")
-                finally:
                     count_try += 1
-            text_is_correct = await get_text_from_filters(final_text, key_words, bad_words)
-            #print (text_is_correct)
-            if text_is_correct: 
-                await s_db.create_new_sites_parsing(id = str(sites['_id']), date=date, text = final_text, url= str(link))
-            await s_db.update_date_sites(url= url, date= date)
+                    chrome_options = webdriver.ChromeOptions()
+                    driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
+                    driver.get(link)
+                    WebDriverWait(driver, 10).until(
+                    EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                    text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+                    driver.quit()
+                    repit = False
+                except:
+                    print("Repit try")
+                    repit = True
+                    if count_try == 5:
+                        repit = False 
+            
+        soup = BeautifulSoup(text, 'html.parser')
+        invalid_tags = ['script', 'form', 'label', 'img', 'svg', 'i', 'link', 'button', 'input', 'textarea', 'use', 'picture',]
+        for tag in invalid_tags:
+            for match in soup.findAll(tag):
+                match.replaceWithChildren()
+        count_try = 0
+        final_text = ""
+        while count_try < 3:
+            try:
+                async with aiohttp.ClientSession() as session:
+                    response = await session.get('https://goodgame563.pythonanywhere.com/take_text_from_request', 
+                                                    json={"request": soup.text.replace('\n', ' ').replace('  ', ' ')}, 
+                                                    timeout = 100)
+                    if response.ok:
+                        final_text = await response.json()
+                        final_text = final_text['result']
+                        break
+            except:
+                print("Failed to get")
+            finally:
+                count_try += 1
+        text_is_correct = await get_text_from_filters(final_text, key_words, bad_words)
+        if text_is_correct: 
+            await s_db.create_new_sites_parsing(id = str(sites['_id']), date=date, text = final_text, url= str(link))
+        await s_db.update_date_sites(url= url, date= date)
 
         
 
