@@ -20,7 +20,7 @@ x-minio-common: &minio-common
 services:
     bot:
         container_name: parse-bot
-
+        restart: unless-stopped
         build: /bot
         env_file:
             - .env
@@ -35,6 +35,7 @@ services:
     minio1:
         <<: *minio-common
         hostname: minio1
+        restart: unless-stopped
         container_name: ${MINIO_CONTAINER_NAME}
         volumes:
             - type: bind
@@ -62,6 +63,7 @@ services:
         networks:
             - basic_network
     browser:
+        restart: unless-stopped
         container_name: 
             browser
         hostname: 
