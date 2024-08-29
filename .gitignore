@@ -4,7 +4,7 @@ mongo/
 __pycache__/
 minio/
 
-*.session
+
 *.log
 
 .idea
