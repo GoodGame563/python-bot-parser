@@ -26,4 +26,4 @@ async def start_parsing():
             all_channels = await tg_db.get_telegramm_channels()
             if all_channels is not None:
                 await parse_channel(all_channels, channel)
-        await asyncio.sleep(305)
+        await asyncio.sleep(30)

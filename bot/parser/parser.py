@@ -29,7 +29,6 @@ async def parse_channel(channel_dict:dict, channel_name:str ):
                 for er in mem:
                     log.send_debug(f"{er}")
                 log.send_info("parsing done successfully")
-                pass
             except Exception as ex: 
                 log.send_critical(f"critical error {ex}")
             finally: 

@@ -42,7 +42,7 @@ async def source(message: types.Message):
 async def source(message: types.Message):
     telegram_channel = await tg_db.get_telegramm_channels() 
     telegram_channel = dict(itertools.islice(telegram_channel.items(), page, page + step))
-    if telegram_channel is not None or len(telegram_channel) != 0:
+    if telegram_channel is not None and len(telegram_channel) != 0:
         channels_to_str = "".join ([f"- id:{id_channel}  @{telegram_channel[id_channel][0].split("/")[-1]}\n" for id_channel in telegram_channel])
         await message.answer(f"{channels_to_str}", reply_markup=await return_menu())
     await message.answer("Перед вами открылось меню в которое входит: редактирования, удаления, добавления, каналов для парсинга.", reply_markup=reply.manage_sources_markup)

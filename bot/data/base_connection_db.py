@@ -55,26 +55,3 @@ async def check_exist_database_if_create():
             "all_turn_off_time": datetime.strptime("21:00:00", "%H:%M:%S")
         })
     
-    chat_ids = os.environ.get('CHAT_ID').replace(' ', '').split(',') if os.environ.get('CHAT_ID') != None and os.environ.get('CHAT_ID') != '' else None
-    if chat_ids != None:
-        channels = info.channels
-        if await channels.estimated_document_count() == 0:
-            for chat_id in chat_ids:
-                await channels.insert_one({
-                    "id": chat_id
-                })
-        for chat_id in chat_ids:
-            chat = client[chat_id]
-            chat_settings = chat.settings
-            if await chat_settings.estimated_document_count() == 0:
-                await chat_settings.insert_one({
-                    "posting_image": True,
-                    "link_to_source": True,
-                    "work_on_time": False,
-                    "parser": False,
-                    "send_post": False,
-                    "neural_enabled": False,
-                    "work_on_time": False,
-                    "start_time": datetime.strptime("09:00:00", "%H:%M:%S"),
-                    "end_time": datetime.strptime("21:00:00", "%H:%M:%S")
-                })

@@ -14,7 +14,7 @@ import aiohttp
 from dateutil.relativedelta import relativedelta
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.utils.markdown import text, bold, link
-from data.minio_function import get_file
+from data.minio_function import get_file, check_file_size
 from aiogram.utils.media_group import InputMediaPhoto
 load_dotenv()
 
@@ -40,10 +40,12 @@ async def print_post(bot):
                 for doc in rofl:
                     try:
                         id_message = doc.get("id")
-                        #doc['text'] = doc['text']+"   "
-                        #doc['text'] = doc["text"][:doc["text"].find("@")-1]+doc["text"][doc["text"].find(" ", doc["text"].find("@")):-1]     
-                        text_to = text(doc["text"] + ("\n"+link("Источник", f"{id_message}" if settings.get("link_to_source") else "")))
-                        await bot.send_message(int(chat), text_to.replace("**", "*").replace("##", "").replace("\*", "*"), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+                        if (id_message).find(":",7) != -1:
+                            id_message = id_message[:str(id_message).find(":",7)] + id_message[str(id_message).find(":",7)+1:]
+                            
+                        text_to = text(doc["text"] + (("\n" + link("Источник", f"{id_message}")) if settings.get("link_to_source") else ""))
+                        #print(text_to)
+                        await bot.send_message(int(chat), text_to.replace("**", "*").replace("##", "").replace("\\*", "*"), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
                         await s_db.update_sites_last_send(site, doc["date"] + relativedelta(seconds=1))
                         await asyncio.sleep(1.5)
                     except Exception as e:
@@ -65,10 +67,12 @@ async def print_post(bot):
                                         result = await new_text(document['text'])
                                         document['text'] = str(result.get("result")).replace("##", "").replace("**", "*") 
                                     text_to = document['text'] + text("\n"+(link("Источник", f"{namechannel}/{id_message}") if settings.get("link_to_source") else ""))
+                                    text_to = text_to.replace("\\.",".").replace("\\-", "-").replace("\\!","!").replace("\\=","=")
                                 else:
                                     document['text'] = document['text']+"   "
                                     document['text'] = document["text"][:document["text"].find("@")-1]+document["text"][document["text"].find(" ", document["text"].find("@")):-1]     
-                                    text_to = text(bold(document["text"].split("\n")[0])+ "\n" + "\n".join(document["text"].split('\n')[1:]) +"\n" + ("\n"+link("Источник", f"{namechannel}/{id_message}" if settings.get("link_to_source") else "")))
+                                    text_to = text(bold(document["text"].split("\n")[0])+ "\n" + "\n".join(document["text"].split('\n')[1:]) +"\n" + (("\n" + link("Источник", f"{namechannel}/{id_message}")) if settings.get("link_to_source") else ""))
+                                    text_to = text_to.replace("\\.",".").replace("\\-", "-").replace("\\!","!").replace("\\=","=")
                                 count = document.get('count_img')
                                 if not settings.get("posting_image"):
                                     count = None
@@ -97,11 +101,13 @@ async def print_post(bot):
                                                         medias.append(media)
                                                 await bot.send_media_group(chat_id = chat, media=medias, request_timeout=1000)
                                         else:
-                                            if (int(count) == 1):
+                                            result_size_file = await check_file_size(document["url"][0])
+                                            if (int(count) == 1 and result_size_file):
                                                 file = await get_file(document["url"][0])
-                                                #print(document["url"][0].split('/')[1])
                                                 hs = types.input_file.BufferedInputFile(file= file, filename= document["url"][0].split('/')[1])
                                                 await bot.send_video(int(chat), video=hs, caption=text_to, duration=1000, supports_streaming=True, request_timeout=2000, parse_mode=ParseMode.MARKDOWN)
+                                            else:
+                                                await bot.send_message(int(chat), text_to, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
                                 else:
                                     await bot.send_message(int(chat), text_to, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
                                 await tg_db.update_telegram_channel_last_send(channel, document["date"] + relativedelta(seconds=1))
@@ -109,4 +115,4 @@ async def print_post(bot):
                                 log_admin_bot().send_error(f'Error sending {e} tp {document["date"]} chanel {namechannel} id {id_message}')
                                 continue
                             await asyncio.sleep(3.5)
-        await asyncio.sleep(90)
+        await asyncio.sleep(10)

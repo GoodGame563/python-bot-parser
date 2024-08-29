@@ -75,6 +75,10 @@ async def check_minio():
             break
     await check_backet_exists()
 
+async def check_mongo():
+    await check_exist_database_if_create()
+    
+
 async def check_all_for_work():
     print('Checking all for work')
     while True:
@@ -85,7 +89,7 @@ async def check_all_for_work():
             await asyncio.sleep(60)
             return
         break
-    await check_exist_database_if_create()
+    await check_mongo()
 
     await check_minio()
 
@@ -101,14 +105,6 @@ async def main():
     await create_admin(bot)
     log_admin_bot().send_info("bot started")
     print("Bot started")
-    '''
-
-    
-    
-    
-    
-    '''
-    #await asyncio.gather(task1, task2, task3)
     await asyncio.gather(task1, task2, task3, task4)
 
     

@@ -46,16 +46,21 @@ async def get_channel_id(client, link):
 def clearify_text(msg: telethon.tl.custom.message.Message):  
     
     text = msg.message
+    text += "     "
     
     find_int_dog = text.find('@')
     if find_int_dog != -1:
         find_int_end_word = text.find(' ',  find_int_dog)
+        if find_int_end_word == -1:
+            find_int_end_word = text.find('\n',  find_int_dog)
         text = text[:find_int_dog-1] + text[find_int_end_word+1:]
     cross_count = 0
     find_int_cross = text.find('#')
-    print(find_int_cross)
+    #print(find_int_cross)
     if find_int_cross!= -1:
         find_int_end_word = text.find(' ', find_int_cross)
+        if find_int_end_word == -1:
+            find_int_end_word = text.find('\n',  find_int_dog)
         text = text[:find_int_cross] + text[find_int_end_word+1:]
         text = text.replace("*","").replace("$","")
     return text
@@ -114,6 +119,7 @@ async def parse(channel_name:str, client, url, key_words, bad_words):
                 else:
                     await tg_db.update_date_telegram_channel(channel_id, message.date)
         except Exception as passing: 
+            print(f"Error {passing }")
             err.append(passing)
             continue
         if (os.path.isdir(f"{main_folder}/{channel_id}")): 
