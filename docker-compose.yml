@@ -39,7 +39,7 @@ services:
         container_name: ${MINIO_CONTAINER_NAME}
         volumes:
             - type: bind
-              source:  bot/data/minio/files
+              source:  ./bot/data/minio/files
               target:  /mnt/data
             - type: bind
               source:  .env
