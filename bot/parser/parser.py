@@ -25,7 +25,7 @@ async def parse_channel(channel_dict:dict, channel_name:str ):
         await tc.connect()
         await tc.start()
     for id in channel_dict:
-        # try:
+        try:
             log.send_info(f"parsing channel {channel_dict[id][0]}")
             mem = []
             #print(channel_name, tc, channel_dict[id][0], channel_dict[id][3], channel_dict[id][4])
@@ -33,7 +33,7 @@ async def parse_channel(channel_dict:dict, channel_name:str ):
             for er in mem:
                 log.send_debug(f"{er}")
             log.send_info("parsing done successfully")
-        # except Exception as ex: 
-        #     log.send_critical(f"critical error {ex}")
-        # finally: 
-        #     log.send_debug('parsing stop')
+        except Exception as ex: 
+            log.send_critical(f"critical error {ex}")
+        finally: 
+            log.send_debug('parsing stop')
