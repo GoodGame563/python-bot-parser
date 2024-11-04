@@ -115,4 +115,4 @@ async def print_post(bot):
                                 log_admin_bot().send_error(f'Error sending {e} tp {document["date"]} chanel {namechannel} id {id_message}')
                                 continue
                             await asyncio.sleep(3.5)
-        await asyncio.sleep(10)
+        await asyncio.sleep(300)
