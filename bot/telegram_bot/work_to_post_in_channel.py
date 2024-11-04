@@ -24,6 +24,7 @@ async def new_text(text:str):
     return await response.json()
 
 async def print_post(bot):
+    await asyncio.sleep(300)
     while True:
         for send_channel in await return_channels():
             set_db = setting_db(send_channel)
