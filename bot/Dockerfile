@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:3.9
 
 RUN apt-get install -yqq --no-install-recommends 
 

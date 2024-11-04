@@ -1,7 +1,7 @@
 import asyncio 
 import os
 import sys
-
+import time
 
 sys.path.append(os.path.join(os.getcwd(), '..'))
 from aiogram import Bot, Dispatcher, types, F
@@ -86,8 +86,7 @@ async def check_all_for_work():
             print('Database connection is not available')
             log_admin_bot().send_critical("Нет соединения с базой данных")
             log_admin_bot().send_info("Попытка подсоединения к базе данных")
-            await asyncio.sleep(60)
-            return
+            time.sleep(10)
         break
     await check_mongo()
 

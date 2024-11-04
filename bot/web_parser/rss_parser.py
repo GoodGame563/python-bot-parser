@@ -29,6 +29,15 @@ if is_docker == 'True':
 else:
     hub_url = 'http://localhost:4444/wd/hub'
 
+def webdriver_connect(url):
+    chrome_options = webdriver.ChromeOptions()
+    driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
+    driver.get(url)
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+    text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+    driver.quit()
+    return text
+
 async def check_new_update(url, date: datetime):
     async with aiohttp.ClientSession() as session:
         try:
@@ -66,12 +75,12 @@ async def check_new_update(url, date: datetime):
                                     list_items.append(item)
                 else: 
                     print(f"error {url}")
-                    chrome_options = webdriver.ChromeOptions()
-                    driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
-                    driver.get(url)
-                    WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.TAG_NAME, 'body')))
-                    text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+                    # chrome_options = webdriver.ChromeOptions()
+                    # driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
+                    # driver.get(url)
+                    # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                    # text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+                    text = await asyncio.to_thread(webdriver_connect, url)
                     soup = BeautifulSoup(text, 'html.parser')   
                     date_soup = soup.find('item')
                     if date_soup is None:   
@@ -100,16 +109,16 @@ async def check_new_update(url, date: datetime):
                                 date_obj = parser.parse(item.pubdate.contents[0], ignoretz = True) - relativedelta(hours=int(str(item.pubdate.contents[0]).split('+')[1][:2]))
                                 if date_obj > date:
                                     list_items.append(item)
-                    driver.quit()
+                    # driver.quit()
             return list_items
         except Exception as e:
             try:
-                chrome_options = webdriver.ChromeOptions()
-                driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
-                driver.get(url)
-                WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, 'body')))
-                text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+                # chrome_options = webdriver.ChromeOptions()
+                # driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
+                # driver.get(url)
+                # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                # text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+                text = await asyncio.to_thread(webdriver_connect, url)
                 text = str(text).replace('&lt;', '<').replace('&gt;', '>')
                 soup = BeautifulSoup(text, 'html.parser')   
                 date_soup = soup.find('item')
@@ -139,7 +148,7 @@ async def check_new_update(url, date: datetime):
                             date_obj = parser.parse(item.pubdate.contents[0], ignoretz = True) - relativedelta(hours=int(str(item.pubdate.contents[0]).split('+')[1][:2]))
                             if date_obj > date:
                                 list_items.append(item)
-                driver.quit()
+                
             except Exception as e:
                 print(f"Error: {e}")
             return list_items
@@ -180,13 +189,14 @@ async def add_text_from_site(url:str, channel: str, items: list):
                     while repit:
                         try:
                             count_try += 1
-                            chrome_options = webdriver.ChromeOptions()
-                            driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
-                            driver.get(link)
-                            WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.TAG_NAME, 'body')))
-                            text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
-                            driver.quit()
+                            # chrome_options = webdriver.ChromeOptions()
+                            # driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
+                            # driver.get(link)
+                            # WebDriverWait(driver, 10).until(
+                            # EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                            # text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+                            # driver.quit()
+                            text = await asyncio.to_thread(webdriver_connect, url)
                             repit = False
                         except:
                             print("Repit try")
@@ -202,13 +212,14 @@ async def add_text_from_site(url:str, channel: str, items: list):
             while repit:
                 try:
                     count_try += 1
-                    chrome_options = webdriver.ChromeOptions()
-                    driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
-                    driver.get(link)
-                    WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.TAG_NAME, 'body')))
-                    text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
-                    driver.quit()
+                    # chrome_options = webdriver.ChromeOptions()
+                    # driver = webdriver.Remote(command_executor=hub_url,options=chrome_options)
+                    # driver.get(link)
+                    # WebDriverWait(driver, 10).until(
+                    # EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                    # text = driver.find_element(By.TAG_NAME, 'body').get_attribute('outerHTML')
+                    # driver.quit()
+                    text = await asyncio.to_thread(webdriver_connect, url)
                     repit = False
                 except:
                     print("Repit try")
