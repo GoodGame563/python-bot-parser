@@ -9,6 +9,7 @@ minio/
 
 .idea
 test_*
+bot-venv
 
 .VSCodeCounter
 .env

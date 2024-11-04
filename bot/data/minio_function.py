@@ -1,4 +1,7 @@
 from miniopy_async import Minio
+from miniopy_async.commonconfig import ENABLED, Filter
+from miniopy_async.lifecycleconfig import Expiration, LifecycleConfig, Rule, Transition
+# from minio import LifecycleConfig, Rule, Expiration
 from dotenv import load_dotenv
 import os
 import aiohttp
@@ -33,12 +36,23 @@ else:
         secure=False
     )
 
+config = LifecycleConfig(
+    [
+        Rule(
+            ENABLED,
+            rule_filter=Filter(prefix=""),
+            rule_id="rule1",
+            expiration=Expiration(days=1)
+        )
+    ],
+)
 async def check_backet_exists():
     if not await client.bucket_exists(bucket_name):
         print("create bucket")
         await client.make_bucket(bucket_name)
     else:
         print("bucket exists")
+    await client.set_bucket_lifecycle(bucket_name, config)
 
 
 async def get_file(filename):
@@ -66,5 +80,3 @@ async def add_file(filename, id_channel, blob):
         await client.put_object(bucket_name, f"{id_channel}/{filename}", blob, blob.getbuffer().nbytes)
     except Exception as passing:
         print(f"не возможно загрузить контент в минио {passing}")
-    #return byte
-#print(add_file("test.jpg", "2054430930", "record/2054430930/4/photo_2024-05-10_19-27-22.jpg"))
