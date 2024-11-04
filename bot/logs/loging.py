@@ -29,7 +29,7 @@ class log_parser_bot(log_default):
         if self.logger.handlers == [] or create:
             self.logger.setLevel(logging.DEBUG)
             handler = RotatingFileHandler('../logs/parser_bot_log.log', maxBytes=2000, backupCount=0, mode='w', encoding="utf-8")
-            handler.setLevel(logging.DEBUG)
+            handler.setLevel(logging.WARNING)
             handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
             self.logger.addHandler(handler)
 
