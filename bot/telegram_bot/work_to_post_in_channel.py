@@ -98,13 +98,13 @@ async def send_channel_post(channel, channels, send_channel, tg_db, settings, bo
                     else:
                         await bot.send_message(int(chat), text_to, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
                     await tg_db.update_telegram_channel_last_send(channel, document["date"] + relativedelta(seconds=1))
+                    await asyncio.sleep(3.5)
                 except Exception as e:
                     log_admin_bot().send_error(f'Error sending {e} tp {document["date"]} chanel {namechannel} id {id_message}')
                     continue
-                await asyncio.sleep(3.5)
-
+                
 async def print_post(bot):
-    await asyncio.sleep(300)
+    await asyncio.sleep(20)
     while True:
         for send_channel in await return_channels():
             set_db = setting_db(send_channel)
