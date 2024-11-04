@@ -104,7 +104,7 @@ async def send_channel_post(channel, channels, send_channel, tg_db, settings, bo
                     continue
                 
 async def print_post(bot):
-    await asyncio.sleep(1)
+    await asyncio.sleep(20)
     while True:
         for send_channel in await return_channels():
             set_db = setting_db(send_channel)
